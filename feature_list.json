@@ -1,0 +1,67 @@
+{
+  "features": [
+    {
+      "id": "feat-001",
+      "name": "Setup do projeto",
+      "description": "Inicializar projeto Spring Boot 4.x (Java 25) com Maven e Spring Cloud Gateway, pacotes config/filter/route (nao segue o layout hexagonal dos outros servicos Java - ver docs/CONVENTIONS.md e CLAUDE.md deste servico), JaCoCo com gate de 80% vinculado a fase verify. Sem banco de dados (stateless). MessageSource/ResourceBundle configurado para i18n de erros (pt-BR/en-US/es, ver docs/CONVENTIONS.md secao 'Internacionalizacao').",
+      "dependencies": [],
+      "status": "not-started",
+      "plan_review": "",
+      "jira": "",
+      "subtasks": [],
+      "evidence": ""
+    },
+    {
+      "id": "feat-002",
+      "name": "Validacao de token PASETO e injecao de X-User-Id/X-Tenant-Id",
+      "description": "Filtro global que valida o token PASETO (mesma chave de auth-service) em toda rota autenticada, injeta X-User-Id e X-Tenant-Id resolvidos das claims do token (userId e tenantId/slug - deixaram de ser o mesmo valor em 2026-08-02, ver docs/DECISIONS-LOG.md), e rejeita (401, RFC 7807) token ausente/invalido/expirado. Nunca repassa o token PASETO original nem aceita X-User-Id/X-Tenant-Id vindo do cliente.",
+      "dependencies": [
+        "feat-001"
+      ],
+      "status": "not-started",
+      "plan_review": "",
+      "jira": "",
+      "subtasks": [],
+      "evidence": ""
+    },
+    {
+      "id": "feat-003",
+      "name": "Roteamento para auth-service, bets-service e stats-service",
+      "description": "Tabela de rotas (sempre em ingles, ver docs/API-CONTRACTS.md): /api/v1/users/** e /api/v1/auth/** -> auth-service; /api/v1/betting-houses/**, /api/v1/bets/**, /api/v1/transactions/** -> bets-service; /api/v1/statistics/** -> stats-service. Ver docs/services/api-gateway.md.",
+      "dependencies": [
+        "feat-002"
+      ],
+      "status": "not-started",
+      "plan_review": "",
+      "jira": "",
+      "subtasks": [],
+      "evidence": ""
+    },
+    {
+      "id": "feat-004",
+      "name": "Credencial de servico (X-Service-Key) para telegram-integration",
+      "description": "Caminho de autenticacao alternativo para chamadas de servico-a-servico sem usuario logado: valida o header X-Service-Key (segredo estatico por ambiente) em vez de PASETO, resolve telegramUserId -> userId/tenantId via GET /api/v1/telegram-accounts/{telegramUserId} em auth-service (que agora consulta o diretorio TELEGRAM_LINK no schema public, lookup direto sem ambiguidade de schema - ver docs/DECISIONS-LOG.md item 15), injeta X-User-Id/X-Tenant-Id resolvidos e roteia para POST /api/v1/bets em bets-service. Rejeita (401, RFC 7807, title/detail localizados por Accept-Language) X-Service-Key ausente/invalida ou telegramUserId nao vinculado a nenhum usuario.",
+      "dependencies": [
+        "feat-003"
+      ],
+      "status": "not-started",
+      "plan_review": "",
+      "jira": "",
+      "subtasks": [],
+      "evidence": ""
+    },
+    {
+      "id": "feat-005",
+      "name": "Pipeline de CI (GitHub Actions + SonarCloud)",
+      "description": "Workflow ja versionado em .github/workflows/ci.yml (dentro deste repositorio - este servico e seu proprio repositorio Git, nao um monorepo, ver docs/CI-CD.md) com 5 passos: validacao de CHANGELOG.md atualizado, validacao de chaves de traducao (messages_pt_BR/en_US/es.properties), build (mvn package), testes unitarios + cobertura (mvn test jacoco:report), qualidade/cobertura no SonarCloud (mvn sonar:sonar, projectKey sv-api-gateway). Scripts de validacao em .github/scripts/ (duplicados neste repositorio, nao compartilhados). Repositorio GitHub: https://github.com/eimmig/sv-api-gateway.git. So funciona de fato apos este repositorio existir no GitHub e o setup do SonarCloud (org, projeto, SONAR_TOKEN, SONAR_ORGANIZATION) estar feito - ver docs/CI-CD.md secao 'Setup pendente'.",
+      "dependencies": [
+        "feat-001"
+      ],
+      "status": "not-started",
+      "plan_review": "",
+      "jira": "",
+      "subtasks": [],
+      "evidence": ""
+    }
+  ]
+}
