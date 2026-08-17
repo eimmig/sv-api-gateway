@@ -74,6 +74,6 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: >
           mvn -B sonar:sonar
-          -Dsonar.projectKey=sv-api-gateway
+          -Dsonar.projectKey=eimmig_sv-api-gateway
           -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}
           -Dsonar.host.url=https://sonarcloud.io
