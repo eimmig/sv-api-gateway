@@ -6,15 +6,52 @@
       "description": "Inicializar projeto Spring Boot 4.x (Java 25) com Maven e Spring Cloud Gateway Server WebMVC (spring-cloud-starter-gateway-server-webmvc - bloqueante/servlet, nao o reativo/WebFlux, decisao de 2026-09-07 ver docs/DECISIONS-LOG.md), pacotes config/filter/route (nao segue o layout hexagonal dos outros servicos Java - ver docs/CONVENTIONS.md e CLAUDE.md deste servico), JaCoCo com gate de 80% vinculado a fase verify. Sem banco de dados (stateless). MessageSource/ResourceBundle configurado para i18n de erros (pt-BR/en-US/es, ver docs/CONVENTIONS.md secao 'Internacionalizacao') - messages.properties base sem sufixo de locale desde o inicio (gotcha documentado em docs/CONVENTIONS.md, achado em auth-service feat-003.6, nao redescobrir aqui).",
       "dependencies": [],
       "status": "not-started",
-      "plan_review": "",
+      "plan_review": "2026-09-07, Plan Reviewer (review-suite:ln-11-plan-reviewer) rodado contra o plano antes de qualquer codigo. Veredito: REVISE. Achados corrigidos no plano antes da implementacao: (MAJOR) CLAUDE.md deste servico ainda sugeria o pacote com o groupId antigo (com.eduardoimmig.betting), nunca atualizado apos a correcao para com.stakevault.betting em auth-service feat-001 (docs/CONVENTIONS.md) - corrigido direto no arquivo; (MINOR) plano original previa descobrir manualmente uma versao compativel de spring-cloud-dependencies - gerar o pom.xml real via start.spring.io (bootVersion 4.1.1.RELEASE, dependencies=cloud-gateway,actuator) confirmou que o Initializr ja injeta spring-cloud.version=2025.1.3 e o dependencyManagement sozinho, e que o id 'cloud-gateway' mapeia para spring-cloud-starter-gateway-server-webmvc (bloqueante, confirmado no pom gerado) - sem necessidade de BOM manual; (MINOR) rota RouterFunction placeholder soh pra provar que o servico sobe foi cortada (seria codigo descartavel, seria apagado no feat-003) - feat-001.1 verifica so com contextLoads() (mesmo padrao de AuthServiceApplicationTests.java), e a primeira prova HTTP real vira do endpoint do Actuator em feat-001.4 (RANDOM_PORT + java.net.http.HttpClient, mesmo padrao dos testes de integracao de auth-service); (MINOR) spring-boot-starter-validation removido do pom - este servico nunca valida corpo JSON (@Valid), so header, imperativamente, em filtro; nenhuma das features feat-002..004 introduz um DTO validado; (MINOR) .env.example nao tem nenhuma variavel para listar ainda (PASETO_LOCAL_KEY so entra em feat-002) - feat-001.1 so acrescenta .env ao .gitignore (Initializr nao inclui por padrao), criacao do .env.example de fato fica pra feat-002. Verificado via start.spring.io real (nao so conhecimento treinado) - unico risco residual: config de JaCoCo/annotation-processor do Lombok foi pareada contra o pom.xml ja verde de auth-service, nao rodada localmente ainda (roda de verdade dentro da propria feat-001.2).",
       "jira": "",
-      "subtasks": [],
+      "subtasks": [
+        {
+          "id": "feat-001.1",
+          "name": "Bootstrap do pom.xml e esqueleto de pacotes",
+          "status": "not-started",
+          "jira": ""
+        },
+        {
+          "id": "feat-001.2",
+          "name": "Gate de cobertura JaCoCo 80%",
+          "status": "not-started",
+          "jira": ""
+        },
+        {
+          "id": "feat-001.3",
+          "name": "Scaffold de i18n (MessageSource) e teste smoke",
+          "status": "not-started",
+          "jira": ""
+        },
+        {
+          "id": "feat-001.4",
+          "name": "Health checks do Actuator",
+          "status": "not-started",
+          "jira": ""
+        },
+        {
+          "id": "feat-001.5",
+          "name": "Logging estruturado",
+          "status": "not-started",
+          "jira": ""
+        },
+        {
+          "id": "feat-001.6",
+          "name": "CHANGELOG e verificacao final",
+          "status": "not-started",
+          "jira": ""
+        }
+      ],
       "evidence": ""
     },
     {
       "id": "feat-002",
       "name": "Validacao de token PASETO e injecao de X-User-Id/X-Tenant-Id",
-      "description": "Filtro global que valida o token PASETO (mesma chave de auth-service) em toda rota autenticada, injeta X-User-Id e X-Tenant-Id resolvidos das claims do token (userId e tenantId/slug - deixaram de ser o mesmo valor em 2026-08-02, ver docs/DECISIONS-LOG.md), e rejeita (401, RFC 7807) token ausente/invalido/expirado. Nunca repassa o token PASETO original nem aceita X-User-Id/X-Tenant-Id vindo do cliente.",
+      "description": "Filtro global que valida o token PASETO (mesma chave de auth-service) em toda rota autenticada, injeta X-User-Id e X-Tenant-Id resolvidos das claims do token (userId e tenantId/slug - deixaram de ser o mesmo valor em 2026-08-02, ver docs/DECISIONS-LOG.md), e rejeita (401, RFC 7807) token ausente/invalido/expirado. Nunca repassa o token PASETO original nem aceita X-User-Id/X-Tenant-Id vindo do cliente. Primeira feature a ler variavel de ambiente deste servico - cria .env.example com PASETO_LOCAL_KEY (achado do Plan Review de feat-001: nao criar o arquivo antes de existir uma variavel real para listar).",
       "dependencies": [
         "feat-001"
       ],

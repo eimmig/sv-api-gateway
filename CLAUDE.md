@@ -30,7 +30,7 @@ tem implementação real.
 - **Não segue o layout hexagonal `domain/`/`application/`/`adapter/`** dos outros três serviços
   Java (ver `../../docs/CONVENTIONS.md`) — não há domínio de negócio aqui, só roteamento e
   filtros de segurança. Estrutura sugerida:
-  `src/main/java/com/eduardoimmig/betting/gateway/{config,filter,route}/`.
+  `src/main/java/com/stakevault/betting/gateway/{config,filter,route}/`.
 - **Maven** (não Gradle) — mesma decisão dos demais serviços Java em `../../docs/CONVENTIONS.md`.
 - **Validação de token PASETO**: único serviço, junto com `auth-service`, que manipula a chave
   PASETO. Valida o token em toda rota autenticada e injeta `X-User-Id` **e** `X-Tenant-Id`
