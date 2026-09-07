@@ -3,7 +3,8 @@
 ## Estado Atual (Current State)
 
 **Última atualização:** 2026-09-07
-**Feature ativa:** nenhuma (`feat-001` fechada; `feat-002` é a próxima elegível)
+**Feature ativa:** nenhuma (`feat-001`/`feat-002` fechadas; `feat-003` ou `feat-006` são as
+próximas elegíveis)
 
 ## Status
 
@@ -80,8 +81,51 @@
 - Pipeline de CI real (GitHub Actions + SonarCloud) verde no PR `feature/SV-147` → `develop`
   (gate completo, incluindo zero-issue do SonarCloud).
 
+## `feat-002` fechada — primeiro filtro de autenticação real do serviço (2026-09-07, mesmo dia)
+
+Decisão registrada antes de codificar: token PASETO transportado em `Authorization: Bearer
+<token>` — nenhuma nota do vault fixava isso até então (achado real, corrigido em
+`docs/API-CONTRACTS.md` "Confiança entre serviços").
+
+`PasetoAuthenticationFilter` (`OncePerRequestFilter`): decripta via `Paseto.decrypt` (`catch
+RuntimeException` amplo — `paseto4j` não tem um único tipo de exceção pra token inválido,
+confirmado via `javap`, documentado em `docs/CONVENTIONS.md`), valida presença de
+`userId`/`tenantId` e `exp` estritamente no futuro, injeta `X-User-Id`/`X-Tenant-Id` via
+`ResolvedIdentityRequestWrapper` (nunca repassa `Authorization` nem aceita identidade vinda do
+cliente), exclui `/actuator/**` via `shouldNotFilter`. 4 subtasks (SV-155..158, story SV-154) —
+`feat-002.3` fechada sem commit próprio (escopo já entregue dentro de `feat-002.2`, mesmo padrão
+inseparável implementação+teste de `auth-service AdminApiKeyFilter`/`Test`).
+
+**Achados reais corrigidos**:
+- `/code-review` (2 passes): NPE em claim nula dentro do wrapper, falta de validação de
+  `userId`/`tenantId` presentes (só `exp` era checado), `Authorization` original ainda alcançável
+  no request repassado (contradizia o requisito da própria feature), limite de expiração `<` em
+  vez de `<=` (semântica RFC 7519 — token só é válido estritamente antes do `exp`).
+- Regressão real só encontrada rodando `mvn verify` (não pelo `/code-review` do diff isolado): o
+  filtro, uma vez virando `@Component`, passou a bloquear `/actuator/health` do `feat-001.4` —
+  corrigido com `shouldNotFilter`. Novo gotcha documentado em `docs/CONVENTIONS.md`: todo filtro
+  *bloqueante* deste serviço precisa dessa exclusão.
+- SonarCloud (`java:S1075`, gate `feature -> develop`) pegou o `/actuator/` hardcoded — corrigido
+  lendo `management.endpoints.web.base-path` (mais correto: sobrevive a reconfiguração) — e depois
+  pegou até a concatenação do delimitador `"/"` na comparação de prefixo, corrigido evitando
+  concatenação (comparação por `charAt` com literal `char`, não `String`). Duas rodadas de fix
+  reais no mesmo PR antes do gate passar.
+- Test Suite Auditor: cobertura assimétrica (`userId` ausente nunca testado, só `tenantId`) e
+  "token adulterado" conflado com "token de chave errada" (caminhos de exceção distintos da
+  biblioteca — confirmado pelos nomes de exceção diferentes no log:
+  `IllegalArgumentException` vs `IllegalStateException`). Ambos fechados antes de marcar `done`.
+
+Delivery Reviewer: `PASS`. Test Suite Auditor: `CONCERNS` → corrigido antes de fechar. 24 testes
+totais / 0 falhas, gate JaCoCo 80% real. `./init.sh` do serviço e da raiz verdes. Pipeline
+completa (incl. SonarCloud zero-issue) verde no PR `feature/SV-154` → `develop`.
+
 ## Notas para a próxima sessão
 
-Ler `docs/DECISIONS-LOG.md` (entrada 2026-09-07) antes de `feat-002`, para não redescobrir a
-decisão de Gateway Server WebMVC. `PASETO_LOCAL_KEY` é a MESMA chave de `auth-service` — não
-gerar uma independente.
+Ler `docs/DECISIONS-LOG.md` (entrada 2026-09-07) antes de `feat-003`/`feat-006`, para não
+redescobrir a decisão de Gateway Server WebMVC. `PASETO_LOCAL_KEY` é a MESMA chave de
+`auth-service` — não gerar uma independente. Qualquer filtro *bloqueante* novo (`feat-004`,
+`X-Service-Key`) precisa excluir `/actuator/**` desde o início (ver `docs/CONVENTIONS.md`) — não
+redescobrir a regressão de `feat-002`. Ao escrever literal de path/delimitador em Java, esperar
+que o gate `feature -> develop` do SonarCloud (`java:S1075`) reprove até um `char` de barra
+concatenado — preferir comparação por `charAt`/`regionMatches` a concatenação de string desde o
+início, nesses casos.

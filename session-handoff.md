@@ -2,58 +2,59 @@
 
 ## Current Objective
 
-- Goal: `epic-008` (api-gateway) — first feature (`feat-001`, project bootstrap) delivered.
-- Current status: `feat-001` `done`, merged into `develop`. 5 features remain
-  (`feat-002`..`feat-006`).
-- Branch / commit: `develop` @ `3ce4ba4` (merge of `feature/SV-147`).
+- Goal: `epic-008` (api-gateway) — `feat-001` (bootstrap) and `feat-002` (PASETO validation)
+  delivered.
+- Current status: `feat-001`/`feat-002` `done`, both merged into `develop`. 4 features remain
+  (`feat-003`, `feat-004`, `feat-005`, `feat-006`).
+- Branch / commit: `develop` @ `fb8a877` (merge of `feature/SV-154`).
 
 ## Completed This Session
 
-- [x] `feat-001` (Setup do projeto) fully implemented, reviewed, and merged — see
-      `progress.md` for the full breakdown (6 subtasks, SV-148..153, story SV-147).
-- [x] Root harness gap found and closed: `feat-006` (X-Correlation-Id filter) added to the
-      backlog — it was never assigned to any of the original `feat-001..005`.
-- [x] Decision recorded: Spring Cloud Gateway Server WebMVC (blocking), not reactive.
+- [x] `feat-002` (PASETO validation filter, `X-User-Id`/`X-Tenant-Id` injection) fully
+      implemented, reviewed, and merged — see `progress.md` for the full breakdown (4 subtasks,
+      SV-155..158, story SV-154).
+- [x] Real gap found and closed: token transport (`Authorization: Bearer`) was never fixed in the
+      vault before this feature — now in `docs/API-CONTRACTS.md`.
+- [x] Real gotcha found and documented: any blocking filter in this service must exclude
+      `/actuator/**` or it silently breaks health checks (`docs/CONVENTIONS.md`).
 
 ## Verification Evidence
 
 | Check | Command | Result | Notes |
 |---|---|---|---|
-| Build/test | `./mvnw clean verify` | 9 tests, 0 failures | JaCoCo 80% gate real (100% on `LocaleConfig`) |
+| Build/test | `./mvnw clean verify` | 24 tests, 0 failures | JaCoCo 80% gate real |
 | Local harness | `./init.sh` | pass | service + root |
-| CI (subtask gate) | GitHub Actions | pass | 6 PRs, one per subtask |
-| CI (full gate) | GitHub Actions + SonarCloud | pass | `feature/SV-147` → `develop`, zero-issue gate included |
+| CI (subtask gates) | GitHub Actions | pass | 4 PRs, one per subtask |
+| CI (full gate) | GitHub Actions + SonarCloud | pass | 2 real SonarCloud findings (`java:S1075`) fixed before it went green |
 | Delivery Reviewer | review-suite skill | PASS | |
-| Test Suite Auditor | codebase-audit-suite skill | CONCERNS | 2 findings deferred to `feat-002` by design |
-
-## Files Changed
-
-- Full service bootstrap (see `progress.md` "Arquivos modificados").
+| Test Suite Auditor | codebase-audit-suite skill | CONCERNS → fixed | 2 findings (asymmetric claim coverage, conflated tampered/wrong-key test) resolved before closing |
 
 ## Decisions Made
 
-- Spring Cloud Gateway Server WebMVC over the reactive Gateway (`docs/DECISIONS-LOG.md`,
-  2026-09-07).
-- `X-Correlation-Id` filter gets its own feature (`feat-006`), not folded into `feat-002`.
-- CI hardening folded into `feat-001.1` (renamed), not a separate proactive subtask — a reactive
-  fix after the subtask's own PR failed CI (docs/CI-CD.md already warned this repo still had
-  the gap; the Plan Review missed it).
+- `Authorization: Bearer <token>` as the token transport (`docs/API-CONTRACTS.md`, 2026-09-07).
+- Single generic `error.invalid-token` message for every rejection cause (missing/malformed/
+  tampered/expired) — matches the project's anti-enumeration philosophy, matches what
+  `CLAUDE.md`/`docs/services/api-gateway.md` already documented.
+- Blocking filters in this service must exclude `/actuator/**` from the start
+  (`docs/CONVENTIONS.md`) — applies to `feat-004`'s `X-Service-Key` filter too.
 
 ## Blockers / Risks
 
-- None open. Two Test Suite Auditor findings are deliberately deferred to `feat-002` (see
-  `progress.md`) — not a defect, matches `auth-service feat-001.5`'s accepted precedent.
+- None open.
 
 ## Next Session Startup
 
-1. Read `../../CLAUDE.md`, `docs/DECISIONS-LOG.md` (2026-09-07 entry), this service's `CLAUDE.md`.
-2. Read `feature_list.json` — `feat-002` (PASETO validation) is next, or `feat-006`
-   (correlation-id filter, independent, could run in parallel).
+1. Read `../../CLAUDE.md`, `docs/DECISIONS-LOG.md` (2026-09-07 entries), this service's
+   `CLAUDE.md`.
+2. Read `feature_list.json` — `feat-003` (routing) or `feat-006` (correlation-id filter,
+   independent) are both eligible. WIP max 1 — don't start both in parallel sessions.
 3. Run `./init.sh` (should pass).
-4. `Plan Reviewer` before coding either feature — read `docs/CI-CD.md` in full this time, not
-   just a keyword search, given what happened in `feat-001.1`.
+4. `Plan Reviewer` before coding either feature — read `docs/CI-CD.md` and `docs/CONVENTIONS.md`
+   in full, not just a keyword search (lesson from `feat-001`).
 
 ## Recommended Next Step
 
-- `feat-002` (PASETO validation + X-User-Id/X-Tenant-Id injection) — first feature to read
-  `PASETO_LOCAL_KEY` (same key as `auth-service`) and create this service's `.env.example`.
+- `feat-003` (routing to auth-service/bets-service/stats-service) is the natural next step —
+  first feature that gives this service an actual purpose beyond validating tokens in isolation.
+  `feat-006` (correlation-id filter) is independent and could run in parallel in a different
+  session.
