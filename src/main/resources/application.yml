@@ -1,3 +1,5 @@
 spring:
   application:
     name: api-gateway
+  messages:
+    fallback-to-system-locale: false

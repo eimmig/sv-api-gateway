@@ -24,7 +24,7 @@
         {
           "id": "feat-001.3",
           "name": "Scaffold de i18n (MessageSource) e teste smoke",
-          "status": "in-progress",
+          "status": "done",
           "jira": "SV-150"
         },
         {
