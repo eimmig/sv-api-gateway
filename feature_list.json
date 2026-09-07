@@ -52,7 +52,7 @@
     {
       "id": "feat-002",
       "name": "Validacao de token PASETO e injecao de X-User-Id/X-Tenant-Id",
-      "description": "Filtro global que valida o token PASETO (mesma chave de auth-service) em toda rota autenticada, injeta X-User-Id e X-Tenant-Id resolvidos das claims do token (userId e tenantId/slug - deixaram de ser o mesmo valor em 2026-08-02, ver docs/DECISIONS-LOG.md), e rejeita (401, RFC 7807) token ausente/invalido/expirado. Nunca repassa o token PASETO original nem aceita X-User-Id/X-Tenant-Id vindo do cliente. Primeira feature a ler variavel de ambiente deste servico - cria .env.example com PASETO_LOCAL_KEY (achado do Plan Review de feat-001: nao criar o arquivo antes de existir uma variavel real para listar).",
+      "description": "Filtro global que valida o token PASETO (mesma chave de auth-service) em toda rota autenticada. Cliente envia o token em Authorization: Bearer <token> (decisao registrada em docs/API-CONTRACTS.md 'Confianca entre servicos' - nenhuma nota do vault fixava o transporte do token antes desta feature). Injeta X-User-Id e X-Tenant-Id resolvidos das claims do token (userId e tenantId/slug - deixaram de ser o mesmo valor em 2026-08-02, ver docs/DECISIONS-LOG.md), e rejeita (401, RFC 7807) token ausente/invalido/expirado. Nunca repassa o token PASETO original nem aceita X-User-Id/X-Tenant-Id vindo do cliente. Primeira feature a ler variavel de ambiente deste servico - cria .env.example com PASETO_LOCAL_KEY (achado do Plan Review de feat-001: nao criar o arquivo antes de existir uma variavel real para listar).",
       "dependencies": [
         "feat-001"
       ],

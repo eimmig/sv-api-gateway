@@ -33,7 +33,9 @@ tem implementação real.
   `src/main/java/com/stakevault/betting/gateway/{config,filter,route}/`.
 - **Maven** (não Gradle) — mesma decisão dos demais serviços Java em `../../docs/CONVENTIONS.md`.
 - **Validação de token PASETO**: único serviço, junto com `auth-service`, que manipula a chave
-  PASETO. Valida o token em toda rota autenticada e injeta `X-User-Id` **e** `X-Tenant-Id`
+  PASETO. Cliente envia o token em `Authorization: Bearer <token>` (ver
+  `../../docs/API-CONTRACTS.md` seção "Confiança entre serviços" — nunca fixado antes de
+  `feat-002`). Valida o token em toda rota autenticada e injeta `X-User-Id` **e** `X-Tenant-Id`
   (claims `userId`/`tenantId` do token — deixaram de ser o mesmo valor em 2026-08-02, ver
   `../../docs/DECISIONS-LOG.md`) antes de rotear para `bets-service`/`stats-service`. Nunca
   repassa o token PASETO original para os serviços downstream — eles não sabem validá-lo e não
