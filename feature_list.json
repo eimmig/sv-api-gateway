@@ -68,7 +68,7 @@
         {
           "id": "feat-002.2",
           "name": "Filtro de validacao PASETO e injecao de X-User-Id/X-Tenant-Id",
-          "status": "not-started",
+          "status": "in-progress",
           "jira": "SV-156"
         },
         {
