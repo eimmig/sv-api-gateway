@@ -15,3 +15,8 @@ por serviço"). O "porquê" de cada mudança vive na issue e na mensagem de comm
 - [SV-151](https://stakevault.atlassian.net/browse/SV-151) - Health checks do Actuator
 - [SV-152](https://stakevault.atlassian.net/browse/SV-152) - Logging estruturado
 - [SV-153](https://stakevault.atlassian.net/browse/SV-153) - CHANGELOG e verificacao final
+- [SV-154](https://stakevault.atlassian.net/browse/SV-154) - Validacao de token PASETO e injecao de X-User-Id/X-Tenant-Id
+- [SV-155](https://stakevault.atlassian.net/browse/SV-155) - Dependencia paseto4j, .env.example e profile de teste
+- [SV-156](https://stakevault.atlassian.net/browse/SV-156) - Filtro de validacao PASETO e injecao de X-User-Id/X-Tenant-Id
+- [SV-157](https://stakevault.atlassian.net/browse/SV-157) - Testes do filtro e do wrapper de headers
+- [SV-158](https://stakevault.atlassian.net/browse/SV-158) - CHANGELOG e verificacao final

@@ -62,7 +62,7 @@
         {
           "id": "feat-002.1",
           "name": "Dependencia paseto4j, .env.example e profile de teste",
-          "status": "in-progress",
+          "status": "done",
           "jira": "SV-155"
         },
         {
