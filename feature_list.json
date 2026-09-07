@@ -36,7 +36,7 @@
         {
           "id": "feat-001.5",
           "name": "Logging estruturado",
-          "status": "in-progress",
+          "status": "done",
           "jira": "SV-152"
         },
         {
