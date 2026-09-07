@@ -12,13 +12,13 @@
         {
           "id": "feat-001.1",
           "name": "Endurecer pipeline de CI e bootstrap do pom.xml",
-          "status": "in-progress",
+          "status": "done",
           "jira": "SV-148"
         },
         {
           "id": "feat-001.2",
           "name": "Gate de cobertura JaCoCo 80%",
-          "status": "not-started",
+          "status": "in-progress",
           "jira": "SV-149"
         },
         {
