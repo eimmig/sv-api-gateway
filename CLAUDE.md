@@ -56,6 +56,13 @@ tem implementação real.
   precisar tratar um formato de erro diferente vindo do Gateway. `title`/`detail` localizados
   por `Accept-Language` (`pt-BR`/`en-US`/`es`, ver `../../docs/CONVENTIONS.md` seção
   "Internacionalização (i18n)") — `type` continua um slug fixo em inglês.
+- **Filtro global de `X-Correlation-Id` (`feat-006`)**: gera o header se ausente, propaga se já
+  vier do cliente, injeta no MDC/log estruturado e repassa no request roteado para
+  `auth-service`/`bets-service`/`stats-service` — ver `../../docs/OBSERVABILITY-AND-CONFIG.md`.
+  Roda para **toda** rota, autenticada (`feat-002`) ou via `X-Service-Key` (`feat-004`) —
+  filtro independente, não acoplado ao de validação PASETO. Lacuna encontrada em 2026-09-07 (o
+  backlog original de `feat-001..005` não cobria isso, apesar de `bets-service` já depender
+  dele para popular `correlationId` no envelope de evento).
 - Roteamento: `/api/v1/users/**` e `/api/v1/auth/**` → `auth-service`;
   `/api/v1/betting-houses/**`, `/api/v1/bets/**`, `/api/v1/transactions/**` → `bets-service`;
   `/api/v1/statistics/**` → `stats-service`. Rotas sempre em inglês (ver

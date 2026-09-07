@@ -62,6 +62,19 @@
       "jira": "",
       "subtasks": [],
       "evidence": ""
+    },
+    {
+      "id": "feat-006",
+      "name": "Filtro global de X-Correlation-Id",
+      "description": "Lacuna real encontrada em 2026-09-07 (auditoria pre-codificacao de epic-008): docs/OBSERVABILITY-AND-CONFIG.md atribui a este servico gerar (se ausente) ou propagar (se ja existir) o header X-Correlation-Id em toda requisicao HTTP de entrada, injetar no MDC/log estruturado e repassar no request roteado para auth-service/bets-service/stats-service - mas nenhuma das features feat-001..005 originais cobria isso; bets-service ja documenta o campo correlationId do envelope de evento como pendente ate este filtro existir (BetEventEnvelope.java, comentario 'correlationId fica de fora ate existir X-Correlation-Id de verdade (api-gateway, epic-008)'). Filtro global (roda para toda rota, autenticada ou nao - inclusive o caminho X-Service-Key de feat-004), independente do filtro de validacao PASETO (feat-002). Fechar tambem em docs/services/bets-service.md o comentario do BetEventEnvelope quando este filtro entrar no ar.",
+      "dependencies": [
+        "feat-001"
+      ],
+      "status": "not-started",
+      "plan_review": "",
+      "jira": "",
+      "subtasks": [],
+      "evidence": ""
     }
   ]
 }
