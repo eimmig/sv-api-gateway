@@ -13,7 +13,7 @@ serviço adiciona uma entrada em `[Unreleased]` — verificado automaticamente p
   `<org>_<repo>` ao importar um repositório do GitHub; a forma sem prefixo, usada até aqui, faria a
   análise falhar com projeto inexistente.
 - [SV-147](https://stakevault.atlassian.net/browse/SV-147) - Setup do projeto
-- [SV-148](https://stakevault.atlassian.net/browse/SV-148) - Bootstrap do pom.xml e esqueleto de pacotes
+- [SV-148](https://stakevault.atlassian.net/browse/SV-148) - Endurecer pipeline de CI e bootstrap do pom.xml
 - [SV-149](https://stakevault.atlassian.net/browse/SV-149) - Gate de cobertura JaCoCo 80%
 - [SV-150](https://stakevault.atlassian.net/browse/SV-150) - Scaffold de i18n (MessageSource) e teste smoke
 - [SV-151](https://stakevault.atlassian.net/browse/SV-151) - Health checks do Actuator
