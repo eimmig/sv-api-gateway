@@ -30,7 +30,7 @@
         {
           "id": "feat-001.4",
           "name": "Health checks do Actuator",
-          "status": "in-progress",
+          "status": "done",
           "jira": "SV-151"
         },
         {
