@@ -18,7 +18,7 @@
         {
           "id": "feat-001.2",
           "name": "Gate de cobertura JaCoCo 80%",
-          "status": "in-progress",
+          "status": "done",
           "jira": "SV-149"
         },
         {
