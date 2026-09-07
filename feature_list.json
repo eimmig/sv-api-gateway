@@ -12,7 +12,7 @@
         {
           "id": "feat-001.1",
           "name": "Bootstrap do pom.xml e esqueleto de pacotes",
-          "status": "in-progress",
+          "status": "done",
           "jira": "SV-148"
         },
         {
