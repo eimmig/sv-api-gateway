@@ -26,6 +26,7 @@ import tools.jackson.databind.ObjectMapper;
 class PasetoAuthenticationFilterTest {
 
 	private static final String KEY_HEX = "93f681c1304df4c64f73a0df5c58c7eb097927246ad5b850247a97ef14774bc7";
+	private static final String OTHER_KEY_HEX = "0000000000000000000000000000000000000000000000000000000000000000";
 	private static final SecretKey KEY = new SecretKey(HexFormat.of().parseHex(KEY_HEX), Version.V4);
 
 	private final ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
@@ -63,6 +64,23 @@ class PasetoAuthenticationFilterTest {
 		return Paseto.encrypt(KEY, json, "");
 	}
 
+	private static String tokenWithMissingUserId(String tenantId) {
+		Instant now = Instant.now();
+		String json = """
+				{"tenantId":"%s","iat":%d,"exp":%d}"""
+				.formatted(tenantId, now.getEpochSecond(), now.plusSeconds(3600).getEpochSecond());
+		return Paseto.encrypt(KEY, json, "");
+	}
+
+	private static String tokenSignedWithDifferentKey(String userId, String tenantId) {
+		Instant now = Instant.now();
+		String json = """
+				{"userId":"%s","tenantId":"%s","iat":%d,"exp":%d}"""
+				.formatted(userId, tenantId, now.getEpochSecond(), now.plusSeconds(3600).getEpochSecond());
+		SecretKey otherKey = new SecretKey(HexFormat.of().parseHex(OTHER_KEY_HEX), Version.V4);
+		return Paseto.encrypt(otherKey, json, "");
+	}
+
 	@Test
 	void shouldPassThroughAndInjectResolvedIdentityForValidToken() throws Exception {
 		String userId = UUID.randomUUID().toString();
@@ -86,6 +104,35 @@ class PasetoAuthenticationFilterTest {
 		when(localeResolver.resolveLocale(any())).thenReturn(Locale.forLanguageTag("pt-BR"));
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Bearer " + tokenWithMissingTenant(UUID.randomUUID().toString()));
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockFilterChain chain = new MockFilterChain();
+
+		filter.doFilter(request, response, chain);
+
+		assertThat(response.getStatus()).isEqualTo(401);
+		assertThat(chain.getRequest()).isNull();
+	}
+
+	@Test
+	void shouldReturn401WhenUserIdClaimIsMissing() throws Exception {
+		when(localeResolver.resolveLocale(any())).thenReturn(Locale.forLanguageTag("pt-BR"));
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization", "Bearer " + tokenWithMissingUserId("acme"));
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockFilterChain chain = new MockFilterChain();
+
+		filter.doFilter(request, response, chain);
+
+		assertThat(response.getStatus()).isEqualTo(401);
+		assertThat(chain.getRequest()).isNull();
+	}
+
+	@Test
+	void shouldReturn401WhenTokenIsEncryptedWithADifferentKey() throws Exception {
+		when(localeResolver.resolveLocale(any())).thenReturn(Locale.forLanguageTag("pt-BR"));
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization",
+				"Bearer " + tokenSignedWithDifferentKey(UUID.randomUUID().toString(), "acme"));
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
 
