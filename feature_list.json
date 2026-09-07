@@ -5,45 +5,46 @@
       "name": "Setup do projeto",
       "description": "Inicializar projeto Spring Boot 4.x (Java 25) com Maven e Spring Cloud Gateway Server WebMVC (spring-cloud-starter-gateway-server-webmvc - bloqueante/servlet, nao o reativo/WebFlux, decisao de 2026-09-07 ver docs/DECISIONS-LOG.md), pacotes config/filter/route (nao segue o layout hexagonal dos outros servicos Java - ver docs/CONVENTIONS.md e CLAUDE.md deste servico), JaCoCo com gate de 80% vinculado a fase verify. Sem banco de dados (stateless). MessageSource/ResourceBundle configurado para i18n de erros (pt-BR/en-US/es, ver docs/CONVENTIONS.md secao 'Internacionalizacao') - messages.properties base sem sufixo de locale desde o inicio (gotcha documentado em docs/CONVENTIONS.md, achado em auth-service feat-003.6, nao redescobrir aqui).",
       "dependencies": [],
-      "status": "not-started",
-      "plan_review": "2026-09-07, Plan Reviewer (review-suite:ln-11-plan-reviewer) rodado contra o plano antes de qualquer codigo. Veredito: REVISE. Achados corrigidos no plano antes da implementacao: (MAJOR) CLAUDE.md deste servico ainda sugeria o pacote com o groupId antigo (com.eduardoimmig.betting), nunca atualizado apos a correcao para com.stakevault.betting em auth-service feat-001 (docs/CONVENTIONS.md) - corrigido direto no arquivo; (MINOR) plano original previa descobrir manualmente uma versao compativel de spring-cloud-dependencies - gerar o pom.xml real via start.spring.io (bootVersion 4.1.1.RELEASE, dependencies=cloud-gateway,actuator) confirmou que o Initializr ja injeta spring-cloud.version=2025.1.3 e o dependencyManagement sozinho, e que o id 'cloud-gateway' mapeia para spring-cloud-starter-gateway-server-webmvc (bloqueante, confirmado no pom gerado) - sem necessidade de BOM manual; (MINOR) rota RouterFunction placeholder soh pra provar que o servico sobe foi cortada (seria codigo descartavel, seria apagado no feat-003) - feat-001.1 verifica so com contextLoads() (mesmo padrao de AuthServiceApplicationTests.java), e a primeira prova HTTP real vira do endpoint do Actuator em feat-001.4 (RANDOM_PORT + java.net.http.HttpClient, mesmo padrao dos testes de integracao de auth-service); (MINOR) spring-boot-starter-validation removido do pom - este servico nunca valida corpo JSON (@Valid), so header, imperativamente, em filtro; nenhuma das features feat-002..004 introduz um DTO validado; (MINOR) .env.example nao tem nenhuma variavel para listar ainda (PASETO_LOCAL_KEY so entra em feat-002) - feat-001.1 so acrescenta .env ao .gitignore (Initializr nao inclui por padrao), criacao do .env.example de fato fica pra feat-002. Verificado via start.spring.io real (nao so conhecimento treinado) - unico risco residual: config de JaCoCo/annotation-processor do Lombok foi pareada contra o pom.xml ja verde de auth-service, nao rodada localmente ainda (roda de verdade dentro da propria feat-001.2).",
-      "jira": "",
+      "status": "done",
+      "evidence": "Fechado em 2026-09-07 - 6 subtasks (SV-148..153) done. Bootstrap Spring Boot 4.1.1/Java 25/Maven completo: Spring Cloud Gateway Server WebMVC (bloqueante, decisao de 2026-09-07 ver docs/DECISIONS-LOG.md), pacotes config/filter/route (sem hexagonal, servico sem dominio de negocio), gate JaCoCo 80% (real 100% na unica classe com logica, LocaleConfig), i18n MessageSource (messages.properties base desde o inicio, evitando o gotcha de auth-service feat-003.6), health checks do Actuator (liveness+readiness, endpoint real testado via RANDOM_PORT), logging estruturado ECS, CHANGELOG.md corrigido pro formato atual (estava desatualizado desde antes do codigo existir). Achados reais corrigidos: CLAUDE.md com groupId antigo, ci.yml sem o endurecimento ja documentado como pendente em docs/CI-CD.md (3 armadilhas de sequenciamento subtask - i18n guardado so por pom.xml, goal solto do JaCoCo, atalho do sonar - portado de stats-service dentro da propria feat-001.1), mvnw sem bit executavel, nomes de teste em portugues (regra de 2026-09-04 nao seguida no rascunho inicial), teste de health check faltando o endpoint de readiness. Delivery Reviewer: PASS. Test Suite Auditor: CONCERNS (2 achados P2/P3, ambos aceitos como diferidos para feat-002 - MessagesTest/LocaleConfigTest nao provam o bean real do Spring ainda, mesmo tradeoff ja aceito em auth-service feat-001.5 por nao existir excecao de negocio real pra localizar nesta feature). ./init.sh do servico e da raiz verdes. Libera feat-002 (validacao PASETO); epic-008 (raiz) continua in-progress ate feat-002..006 tambem fecharem.",
+      "plan_review": "2026-09-07, Plan Reviewer (review-suite:ln-11-plan-reviewer) rodado contra o plano antes de qualquer codigo. Veredito: REVISE. Achados corrigidos no plano antes da implementacao: (MAJOR) CLAUDE.md deste servico ainda sugeria o pacote com o groupId antigo (com.eduardoimmig.betting), nunca atualizado apos a correcao para com.stakevault.betting em auth-service feat-001 (docs/CONVENTIONS.md) - corrigido direto no arquivo; (MINOR) plano original previa descobrir manualmente uma versao compativel de spring-cloud-dependencies - gerar o pom.xml real via start.spring.io (bootVersion 4.1.1.RELEASE, dependencies=cloud-gateway,actuator) confirmou que o Initializr ja injeta spring-cloud.version=2025.1.3 e o dependencyManagement sozinho, e que o id 'cloud-gateway' mapeia para spring-cloud-starter-gateway-server-webmvc (bloqueante, confirmado no pom gerado) - sem necessidade de BOM manual; (MINOR) rota RouterFunction placeholder soh pra provar que o servico sobe foi cortada (seria codigo descartavel, seria apagado no feat-003) - feat-001.1 verifica so com contextLoads() (mesmo padrao de AuthServiceApplicationTests.java), e a primeira prova HTTP real vira do endpoint do Actuator em feat-001.4 (RANDOM_PORT + java.net.http.HttpClient, mesmo padrao dos testes de integracao de auth-service); (MINOR) spring-boot-starter-validation removido do pom - este servico nunca valida corpo JSON (@Valid), so header, imperativamente, em filtro; nenhuma das features feat-002..004 introduz um DTO validado; (MINOR) .env.example nao tem nenhuma variavel para listar ainda (PASETO_LOCAL_KEY so entra em feat-002) - feat-001.1 so acrescenta .env ao .gitignore (Initializr nao inclui por padrao), criacao do .env.example de fato fica pra feat-002. Verificado via start.spring.io real (nao so conhecimento treinado) - unico risco residual: config de JaCoCo/annotation-processor do Lombok foi pareada contra o pom.xml ja verde de auth-service, nao rodada localmente ainda (roda de verdade dentro da propria feat-001.2). ADENDO 2026-09-07 (achado real, nao pego neste Plan Review): docs/CI-CD.md ja alertava explicitamente ('Mesma armadilha latente ainda nao corrigida em sv-api-gateway/sv-stats-backend') que o ci.yml herdado do bootstrap do harness (epic-009) tem 3 armadilhas conhecidas quando feat-001 e dividido em subtasks - passo de i18n guardado só por pom.xml (falha PR de subtask antes de messages_pt_BR.properties existir), goal solto 'mvn test jacoco:report' (falha antes do plugin JaCoCo existir), atalho 'mvn sonar:sonar' (nunca resolve). Só percebido quando o PR de feat-001.1 quebrou de verdade no passo de i18n - o Plan Review acima buscou por palavra-chave em docs/CI-CD.md em vez de ler a nota inteira. Corrigido portando o ci.yml ja endurecido de stats-service (guarda propria por messages_pt_BR.properties, mvn -B verify, coordenadas completas do sonar-maven-plugin, gate de zero issue via validate-sonar-issues.py) + copiando o script que faltava - dentro da mesma subtask feat-001.1, renomeada para cobrir as duas coisas. docs/CI-CD.md atualizado no mesmo commit para fechar a pendencia.",
+      "jira": "SV-147",
       "subtasks": [
         {
           "id": "feat-001.1",
-          "name": "Bootstrap do pom.xml e esqueleto de pacotes",
-          "status": "not-started",
-          "jira": ""
+          "name": "Endurecer pipeline de CI e bootstrap do pom.xml",
+          "status": "done",
+          "jira": "SV-148"
         },
         {
           "id": "feat-001.2",
           "name": "Gate de cobertura JaCoCo 80%",
-          "status": "not-started",
-          "jira": ""
+          "status": "done",
+          "jira": "SV-149"
         },
         {
           "id": "feat-001.3",
           "name": "Scaffold de i18n (MessageSource) e teste smoke",
-          "status": "not-started",
-          "jira": ""
+          "status": "done",
+          "jira": "SV-150"
         },
         {
           "id": "feat-001.4",
           "name": "Health checks do Actuator",
-          "status": "not-started",
-          "jira": ""
+          "status": "done",
+          "jira": "SV-151"
         },
         {
           "id": "feat-001.5",
           "name": "Logging estruturado",
-          "status": "not-started",
-          "jira": ""
+          "status": "done",
+          "jira": "SV-152"
         },
         {
           "id": "feat-001.6",
           "name": "CHANGELOG e verificacao final",
-          "status": "not-started",
-          "jira": ""
+          "status": "done",
+          "jira": "SV-153"
         }
       ],
       "evidence": ""
