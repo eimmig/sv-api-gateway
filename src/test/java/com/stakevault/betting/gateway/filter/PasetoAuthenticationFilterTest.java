@@ -32,7 +32,7 @@ class PasetoAuthenticationFilterTest {
 	private final ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
 	private final LocaleResolver localeResolver = mock(LocaleResolver.class);
 	private final PasetoAuthenticationFilter filter = new PasetoAuthenticationFilter(
-			KEY_HEX, messageSource, localeResolver, new ObjectMapper());
+			KEY_HEX, messageSource, localeResolver, new ObjectMapper(), "/actuator");
 
 	PasetoAuthenticationFilterTest() {
 		messageSource.setBasename("messages");

@@ -34,25 +34,27 @@ public class PasetoAuthenticationFilter extends OncePerRequestFilter {
 	private static final Logger log = LoggerFactory.getLogger(PasetoAuthenticationFilter.class);
 
 	private static final String BEARER_PREFIX = "Bearer ";
-	private static final String ACTUATOR_PATH_PREFIX = "/actuator/";
 
 	private final SecretKey localKey;
 	private final MessageSource messageSource;
 	private final LocaleResolver localeResolver;
 	private final ObjectMapper objectMapper;
+	private final String actuatorPathPrefix;
 
 	public PasetoAuthenticationFilter(@Value("${paseto.local-key}") String localKeyHex, MessageSource messageSource,
-			LocaleResolver localeResolver, ObjectMapper objectMapper) {
+			LocaleResolver localeResolver, ObjectMapper objectMapper,
+			@Value("${management.endpoints.web.base-path:/actuator}") String actuatorBasePath) {
 		this.localKey = new SecretKey(HexFormat.of().parseHex(localKeyHex), Version.V4);
 		this.messageSource = messageSource;
 		this.localeResolver = localeResolver;
 		this.objectMapper = objectMapper;
+		this.actuatorPathPrefix = actuatorBasePath + "/";
 	}
 
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) {
 		String decodedPath = UriUtils.decode(request.getRequestURI(), StandardCharsets.UTF_8);
-		return decodedPath.startsWith(ACTUATOR_PATH_PREFIX);
+		return decodedPath.startsWith(actuatorPathPrefix);
 	}
 
 	@Override
