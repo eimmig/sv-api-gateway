@@ -1,7 +1,10 @@
 # CLAUDE.md — api-gateway
 
-Único ponto de entrada HTTP público da plataforma. Java 25 + Spring Boot 4.x + Spring Cloud
-Gateway. Parte do harness multinível do monorepo — leia `../../CLAUDE.md` (raiz) para
+Único ponto de entrada HTTP público da plataforma. Java 25 + Spring Boot 4.x + **Spring Cloud
+Gateway Server WebMVC** (`spring-cloud-starter-gateway-server-webmvc` — bloqueante/servlet, não
+o Gateway reativo/WebFlux, decisão de 2026-09-07, ver `../../docs/DECISIONS-LOG.md`, para manter
+a mesma pilha síncrona dos outros 3 serviços Java). Parte do harness multinível do monorepo —
+leia `../../CLAUDE.md` (raiz) para
 invariantes cross-service antes deste arquivo, e `../../docs/services/api-gateway.md` para o
 desenho completo (rotas, validação de token, credencial de serviço). Arquitetura interna,
 build tool, testes e formato de API são normativos e já decididos em `../../docs/CONVENTIONS.md`,

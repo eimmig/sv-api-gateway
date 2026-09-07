@@ -3,7 +3,7 @@
     {
       "id": "feat-001",
       "name": "Setup do projeto",
-      "description": "Inicializar projeto Spring Boot 4.x (Java 25) com Maven e Spring Cloud Gateway, pacotes config/filter/route (nao segue o layout hexagonal dos outros servicos Java - ver docs/CONVENTIONS.md e CLAUDE.md deste servico), JaCoCo com gate de 80% vinculado a fase verify. Sem banco de dados (stateless). MessageSource/ResourceBundle configurado para i18n de erros (pt-BR/en-US/es, ver docs/CONVENTIONS.md secao 'Internacionalizacao').",
+      "description": "Inicializar projeto Spring Boot 4.x (Java 25) com Maven e Spring Cloud Gateway Server WebMVC (spring-cloud-starter-gateway-server-webmvc - bloqueante/servlet, nao o reativo/WebFlux, decisao de 2026-09-07 ver docs/DECISIONS-LOG.md), pacotes config/filter/route (nao segue o layout hexagonal dos outros servicos Java - ver docs/CONVENTIONS.md e CLAUDE.md deste servico), JaCoCo com gate de 80% vinculado a fase verify. Sem banco de dados (stateless). MessageSource/ResourceBundle configurado para i18n de erros (pt-BR/en-US/es, ver docs/CONVENTIONS.md secao 'Internacionalizacao') - messages.properties base sem sufixo de locale desde o inicio (gotcha documentado em docs/CONVENTIONS.md, achado em auth-service feat-003.6, nao redescobrir aqui).",
       "dependencies": [],
       "status": "not-started",
       "plan_review": "",
