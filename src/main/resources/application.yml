@@ -3,3 +3,9 @@ spring:
     name: api-gateway
   messages:
     fallback-to-system-locale: false
+
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
