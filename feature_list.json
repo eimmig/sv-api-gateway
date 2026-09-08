@@ -147,15 +147,22 @@
     {
       "id": "feat-005",
       "name": "Pipeline de CI (GitHub Actions + SonarCloud)",
-      "description": "Workflow ja versionado em .github/workflows/ci.yml (dentro deste repositorio - este servico e seu proprio repositorio Git, nao um monorepo, ver docs/CI-CD.md) com 5 passos: validacao de CHANGELOG.md atualizado, validacao de chaves de traducao (messages_pt_BR/en_US/es.properties), build (mvn package), testes unitarios + cobertura (mvn test jacoco:report), qualidade/cobertura no SonarCloud (mvn sonar:sonar, projectKey sv-api-gateway). Scripts de validacao em .github/scripts/ (duplicados neste repositorio, nao compartilhados). Repositorio GitHub: https://github.com/eimmig/sv-api-gateway.git. So funciona de fato apos este repositorio existir no GitHub e o setup do SonarCloud (org, projeto, SONAR_TOKEN, SONAR_ORGANIZATION) estar feito - ver docs/CI-CD.md secao 'Setup pendente'.",
+      "description": "Workflow ja versionado em .github/workflows/ci.yml (dentro deste repositorio - este servico e seu proprio repositorio Git, nao um monorepo, ver docs/CI-CD.md) com 6 passos (corrigido de '5' nesta feature - ja herdado ja endurecido de stats-service desde feat-001.1, description desatualizada ate aqui): validacao de CHANGELOG.md atualizada (so PR story->develop/main), validacao de chaves de traducao (messages_pt_BR/en_US/es.properties), build (mvn -DskipTests package), testes unitarios + cobertura (mvn -B verify), qualidade/cobertura no SonarCloud (mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.7.0.6970:sonar - coordenadas completas, nao o atalho mvn sonar:sonar que nunca resolve sem pluginGroups/pom, ver docs/CI-CD.md 'Terceira armadilha' -, projectKey eimmig_sv-api-gateway, sonar.qualitygate.wait=true condicional - pulado em push direto p/ develop), gate de zero issue/hotspot do SonarCloud (validate-sonar-issues.py). Scripts de validacao em .github/scripts/ (duplicados neste repositorio, nao compartilhados). Repositorio GitHub: https://github.com/eimmig/sv-api-gateway.git. Setup do SonarCloud (org, projeto, SONAR_TOKEN, SONAR_ORGANIZATION) feito em epic-009 - ver docs/CI-CD.md secao 'Setup pendente'.",
       "dependencies": [
         "feat-001"
       ],
-      "status": "not-started",
-      "plan_review": "",
-      "jira": "",
-      "subtasks": [],
-      "evidence": ""
+      "status": "done",
+      "plan_review": "2026-09-08, Plan Reviewer (review-suite:ln-11-plan-reviewer) rodado antes de qualquer mudanca - passe proprio, sem subagentes (risco baixo, sem codigo/comportamento novo). Veredito: READY. Grounding: leitura direta de services/api-gateway/.github/workflows/ci.yml - ja tem 6 passos reais (changelog, i18n, build, testes+cobertura, SonarCloud com coordenadas completas, gate de zero issue) desde feat-001.1 (portado ja endurecido de stats-service), rodou verde em todas as 8 PRs da sessao (SV-148..178, feat-001..004 e feat-006, incluindo SonarCloud). Mesmo padrao ja aplicado em auth-service feat-007 e stats-service feat-007: feature de fechamento formal, sem codigo/workflow novo - so corrigir a description desatualizada (dizia 5 passos com atalho 'mvn sonar:sonar') pra bater com a realidade (6 passos, coordenadas completas do sonar-maven-plugin) e fechar.",
+      "jira": "SV-179",
+      "subtasks": [
+        {
+          "id": "feat-005.1",
+          "name": "Fechamento formal - description corrigida e verificacao final",
+          "status": "done",
+          "jira": "SV-180"
+        }
+      ],
+      "evidence": "Fechada em 2026-09-08 - feature de fechamento formal, sem codigo/workflow novo (mesmo padrao de auth-service feat-007/stats-service feat-007). 1 subtask (SV-180, story SV-179), 1 PR de subtask (#22) com CI verde. Description corrigida de '5 passos com atalho mvn sonar:sonar' pra '6 passos reais' (changelog, i18n, build, testes+cobertura mvn -B verify, SonarCloud com coordenadas completas do sonar-maven-plugin, gate de zero issue via validate-sonar-issues.py) - pipeline ja rodava assim de verdade desde feat-001.1 (herdado ja endurecido de stats-service) e ja passou verde, com SonarCloud, em todas as 8 PRs desta sessao (SV-148 ate SV-180). Delivery Reviewer (passe proprio): PASS - nenhum achado, mudanca e so correcao de documentacao. ./init.sh do servico e da raiz verdes. Fecha epic-008 (raiz): feat-001..006 todas done - unico epic que faltava fechar para liberar epic-005 (telegram-integration) e epic-006 (web)."
     },
     {
       "id": "feat-006",
