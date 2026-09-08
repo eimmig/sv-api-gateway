@@ -154,6 +154,18 @@ class PasetoAuthenticationFilterTest {
 	}
 
 	@Test
+	void shouldPassThroughLoginPathWithoutRequiringToken() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/v1/auth/login");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockFilterChain chain = new MockFilterChain();
+
+		filter.doFilter(request, response, chain);
+
+		assertThat(chain.getRequest()).isNotNull();
+		assertThat(chain.getRequest()).isNotInstanceOf(ResolvedIdentityRequestWrapper.class);
+	}
+
+	@Test
 	void shouldReturn401WhenAuthorizationHeaderMissing() throws Exception {
 		when(localeResolver.resolveLocale(any())).thenReturn(Locale.forLanguageTag("pt-BR"));
 		MockHttpServletRequest request = new MockHttpServletRequest();
