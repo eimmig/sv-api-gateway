@@ -197,7 +197,7 @@
       "dependencies": [
         "feat-001"
       ],
-      "status": "in-progress",
+      "status": "done",
       "plan_review": "2026-09-08, Plan Reviewer (review-suite:ln-11-plan-reviewer) rodado antes de codificar, no escopo do plan review de telegram-integration feat-004 (achado BLOCKER daquele review, nao um review separado - risco baixo, mudanca de 3 predicados de rota + teste, mesmo padrao ja existente pras outras 3 rotas de bets-service). Veredito do achado: mudanca minima e indispensavel, mesmo precedente de feat-008 (porta fixa, auth-service/bets-service/stats-service) e feat-004 (X-Correlation-Id) - epic-008 ja done, reaberto so para este gap. Grounding: leitura direta de RouteConfig.java (confirmado, so 3 dos 7 recursos de bets-service roteados), ServiceKeyAuthenticationFilter.java (shouldNotFilter so verifica presenca de X-Service-Key, nao a rota - filtro ja generico, nenhuma mudanca necessaria nele) e SportsController/LeaguesController/MarketsController.java (GET paginado, CatalogResponse {id,name}, ja existentes desde bets-service feat-002). Sem mudanca de filtro, sem novo mecanismo de autenticacao - so estender os predicados path() ja existentes no mesmo Bean.",
       "jira": "SV-195",
       "subtasks": [
@@ -208,7 +208,7 @@
           "jira": "SV-196"
         }
       ],
-      "evidence": ""
+      "evidence": "Fechada em 2026-09-08 - 1 subtask (SV-196, story SV-195), 2 PRs (#24 subtask->story, #25 story->develop) com CI real e verde (incluindo SonarCloud). RouteConfig.betsServiceRoute estendido com 3 predicados novos (/api/v1/sports/**, /api/v1/leagues/**, /api/v1/markets/**) - nenhum filtro tocado, ServiceKeyAuthenticationFilter/PasetoAuthenticationFilter ja sao genericos por presenca de header, nao por rota. Delivery Reviewer (passe proprio, sem subagentes - risco baixo): CONCERNS -> corrigido antes de fechar - achado real P2, os 3 testes novos so provavam o caminho PASETO, nao o X-Service-Key que e o consumidor real que motivou a feature (telegram-integration); corrigido com 1 teste novo via X-Service-Key (shouldRouteSportsRequestViaServiceKeyToBetsService, mecanismo identico nas 3 rotas, 1 teste basta). Achado real do SonarCloud no PR #25 (java:S5976): shouldRouteStatisticsRequestToStatsService + os 3 testes PASETO novos eram estruturalmente identicos (GET + PASETO + assert 200 + assert path) - corrigido substituindo os 4 por 1 @ParameterizedTest (@ValueSource dos 4 paths). docs/services/api-gateway.md atualizado no mesmo commit logico: tabela de roteamento com as 3 rotas novas, e corrigido um achado real de documentacao desatualizada (a nota previa que /api/v1/telegram-accounts/** seria roteada em feat-004 deste servico - na verdade telegram-integration feat-003 decidiu bypassar o Gateway pra essa chamada, achado ja registrado em docs/DECISIONS-LOG.md mas nunca propagado pra esta nota ate agora). ./init.sh do servico e da raiz verdes. Libera telegram-integration feat-004 (estava bloqueada por este gap)."
     }
   ]
 }
