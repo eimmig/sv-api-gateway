@@ -44,6 +44,13 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
+	<!--
+		feat-003.2: nenhum stub HTTP externo (WireMock etc.) adicionado para os testes de
+		roteamento - o JDK ja traz com.sun.net.httpserver.HttpServer, suficiente para simular os
+		3 servicos destino sem risco de conflito de versao de Jackson com o Boot 4/Jackson 3 ja
+		usado no projeto (ver PasetoAuthenticationFilter, tools.jackson.databind.ObjectMapper).
+	-->
 	<dependencyManagement>
 		<dependencies>
 			<dependency>

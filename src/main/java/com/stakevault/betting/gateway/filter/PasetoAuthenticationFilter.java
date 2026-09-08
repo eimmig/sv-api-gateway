@@ -35,6 +35,7 @@ public class PasetoAuthenticationFilter extends OncePerRequestFilter {
 
 	private static final String BEARER_PREFIX = "Bearer ";
 	private static final char PATH_SEPARATOR = '/';
+	private static final String LOGIN_PATH = "/api/v1/auth/login";
 
 	private final SecretKey localKey;
 	private final MessageSource messageSource;
@@ -55,6 +56,9 @@ public class PasetoAuthenticationFilter extends OncePerRequestFilter {
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) {
 		String decodedPath = UriUtils.decode(request.getRequestURI(), StandardCharsets.UTF_8);
+		if (decodedPath.equals(LOGIN_PATH)) {
+			return true;
+		}
 		if (!decodedPath.startsWith(actuatorBasePath)) {
 			return false;
 		}
