@@ -41,6 +41,7 @@ class GatewayRoutingIntegrationTest {
 	private static final AtomicReference<Boolean> lastAuthorizationPresent = new AtomicReference<>();
 	private static final AtomicReference<Boolean> lastServiceKeyPresent = new AtomicReference<>();
 	private static final AtomicReference<Boolean> lastTelegramUserIdPresent = new AtomicReference<>();
+	private static final AtomicReference<String> lastCorrelationIdHeader = new AtomicReference<>();
 
 	private static final HttpServer DOWNSTREAM = startDownstream();
 
@@ -59,6 +60,7 @@ class GatewayRoutingIntegrationTest {
 				lastAuthorizationPresent.set(exchange.getRequestHeaders().containsKey("Authorization"));
 				lastServiceKeyPresent.set(exchange.getRequestHeaders().containsKey("X-Service-Key"));
 				lastTelegramUserIdPresent.set(exchange.getRequestHeaders().containsKey("X-Telegram-User-Id"));
+				lastCorrelationIdHeader.set(exchange.getRequestHeaders().getFirst("X-Correlation-Id"));
 				byte[] body;
 				if (exchange.getRequestURI().getPath().equals("/api/v1/telegram-accounts/bot-user")) {
 					body = "{\"userId\":\"resolved-user\",\"tenantId\":\"resolved-tenant\"}"
@@ -117,6 +119,8 @@ class GatewayRoutingIntegrationTest {
 		assertThat(lastUserIdHeader.get()).isEqualTo(userId);
 		assertThat(lastTenantIdHeader.get()).isEqualTo("acme");
 		assertThat(lastAuthorizationPresent.get()).isFalse();
+		assertThat(lastCorrelationIdHeader.get()).isNotBlank();
+		assertThat(response.headers().firstValue("X-Correlation-Id")).contains(lastCorrelationIdHeader.get());
 	}
 
 	@Test
@@ -161,6 +165,7 @@ class GatewayRoutingIntegrationTest {
 				.header("X-Service-Key", "test-service-key")
 				.header("X-Telegram-User-Id", "bot-user")
 				.header("X-User-Id", "attacker-supplied")
+				.header("X-Correlation-Id", "service-key-path-correlation-id")
 				.POST(HttpRequest.BodyPublishers.noBody())
 				.build();
 
@@ -172,6 +177,8 @@ class GatewayRoutingIntegrationTest {
 		assertThat(lastTenantIdHeader.get()).isEqualTo("resolved-tenant");
 		assertThat(lastServiceKeyPresent.get()).isFalse();
 		assertThat(lastTelegramUserIdPresent.get()).isFalse();
+		assertThat(lastCorrelationIdHeader.get()).isEqualTo("service-key-path-correlation-id");
+		assertThat(response.headers().firstValue("X-Correlation-Id")).contains("service-key-path-correlation-id");
 	}
 
 	@Test
@@ -187,5 +194,31 @@ class GatewayRoutingIntegrationTest {
 
 		assertThat(response.statusCode()).isEqualTo(200);
 		assertThat(lastPath.get()).isEqualTo("/api/v1/telegram-links");
+	}
+
+	@Test
+	void shouldGenerateAndForwardCorrelationIdWhenClientDoesNotSendOne() throws Exception {
+		HttpRequest request = HttpRequest.newBuilder(URI.create("http://localhost:" + port + "/api/v1/auth/login"))
+				.POST(HttpRequest.BodyPublishers.noBody())
+				.build();
+
+		HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+		String responseCorrelationId = response.headers().firstValue("X-Correlation-Id").orElse(null);
+		assertThat(responseCorrelationId).isNotBlank();
+		assertThat(lastCorrelationIdHeader.get()).isEqualTo(responseCorrelationId);
+	}
+
+	@Test
+	void shouldPropagateClientSuppliedCorrelationIdUnchanged() throws Exception {
+		HttpRequest request = HttpRequest.newBuilder(URI.create("http://localhost:" + port + "/api/v1/auth/login"))
+				.header("X-Correlation-Id", "client-correlation-id")
+				.POST(HttpRequest.BodyPublishers.noBody())
+				.build();
+
+		HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+		assertThat(response.headers().firstValue("X-Correlation-Id")).contains("client-correlation-id");
+		assertThat(lastCorrelationIdHeader.get()).isEqualTo("client-correlation-id");
 	}
 }

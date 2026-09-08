@@ -27,3 +27,6 @@ por serviço"). O "porquê" de cada mudança vive na issue e na mensagem de comm
 - [SV-169](https://stakevault.atlassian.net/browse/SV-169) - Credencial de servico (X-Service-Key) para telegram-integration
 - [SV-170](https://stakevault.atlassian.net/browse/SV-170) - ServiceKeyAuthenticationFilter (validacao de chave, lookup em auth-service, injecao de identidade) + testes
 - [SV-171](https://stakevault.atlassian.net/browse/SV-171) - CHANGELOG, atualizacao do vault (header X-Telegram-User-Id) e verificacao final
+- [SV-176](https://stakevault.atlassian.net/browse/SV-176) - Filtro global de X-Correlation-Id
+- [SV-177](https://stakevault.atlassian.net/browse/SV-177) - CorrelationIdFilter + CorrelationIdRequestWrapper + testes
+- [SV-178](https://stakevault.atlassian.net/browse/SV-178) - CHANGELOG, atualizacao do vault (nota de bets-service sobre correlationId pendente) e verificacao final

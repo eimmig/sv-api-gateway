@@ -164,10 +164,23 @@
       "dependencies": [
         "feat-001"
       ],
-      "status": "not-started",
-      "plan_review": "",
-      "jira": "",
-      "subtasks": [],
+      "status": "in-progress",
+      "plan_review": "2026-09-08, Plan Reviewer (review-suite:ln-11-plan-reviewer) rodado antes de codificar - passe proprio, sem subagentes (risco baixo, nao e rota de autenticacao nem dado sensivel). Veredito: READY WITH CONCERNS, corrigido antes de codificar. Grounding: leitura direta de PasetoAuthenticationFilter/ServiceKeyAuthenticationFilter (nenhum dos dois tem @Order hoje, default LOWEST_PRECEDENCE) e ResolvedIdentityRequestWrapper (mesmo padrao de HttpServletRequestWrapper sobrescrevendo getHeader/getHeaders/getHeaderNames). Achados: (MINOR) @Order(Ordered.HIGHEST_PRECEDENCE) so na CorrelationIdFilter e suficiente - nao precisa @Order nos outros dois filtros, ja ficam depois por default; (MINOR) ecoar X-Correlation-Id na response e extensao minha sobre o contrato documentado (que so fala em request/MDC/downstream) - mantido por ser pratica padrao de gateway e nao contradizer nada, registrado como decisao minha; (MAJOR, escopo) plano original prope acrescentar uma feature nova (feat-013) a services/bets-service/feature_list.json sinalizando que BetEventEnvelope.java ainda nao consome o header real - violaria 'stay in scope' de services/api-gateway/CLAUDE.md ('ajuste a nota do vault e sinalize, nao o codigo do outro servico' - feature_list.json e artefato do harness de bets-service, nao vault). Corrigido: sinalizar so via nota do vault (docs/services/bets-service.md) + progress.md/session-handoff.md da raiz, sem tocar em nenhum arquivo dentro de services/bets-service/. Delivery Reviewer (passe proprio): PASS, com 1 achado real corrigido antes de fechar - os 2 testes de integracao novos so exercitavam a rota publica /api/v1/auth/login (sem ResolvedIdentityRequestWrapper por cima), deixando sem prova a composicao de wrappers aninhados nas rotas autenticadas (PASETO/X-Service-Key) - corrigido estendendo os 2 testes de integracao ja existentes dessas rotas com asserts de X-Correlation-Id (gerado no caminho PASETO, propagado sem alteracao no caminho X-Service-Key). Test Suite Auditor: PASS - matriz final cobre as 4 combinacoes reais (sem auth/PASETO/X-Service-Key x header ausente/presente), sem teste trivial.",
+      "jira": "SV-176",
+      "subtasks": [
+        {
+          "id": "feat-006.1",
+          "name": "CorrelationIdFilter + CorrelationIdRequestWrapper + testes",
+          "status": "in-progress",
+          "jira": "SV-177"
+        },
+        {
+          "id": "feat-006.2",
+          "name": "CHANGELOG, atualizacao do vault (nota de bets-service sobre correlationId pendente) e verificacao final",
+          "status": "not-started",
+          "jira": "SV-178"
+        }
+      ],
       "evidence": ""
     }
   ]
