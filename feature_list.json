@@ -151,7 +151,7 @@
       "dependencies": [
         "feat-001"
       ],
-      "status": "in-progress",
+      "status": "done",
       "plan_review": "2026-09-08, Plan Reviewer (review-suite:ln-11-plan-reviewer) rodado antes de qualquer mudanca - passe proprio, sem subagentes (risco baixo, sem codigo/comportamento novo). Veredito: READY. Grounding: leitura direta de services/api-gateway/.github/workflows/ci.yml - ja tem 6 passos reais (changelog, i18n, build, testes+cobertura, SonarCloud com coordenadas completas, gate de zero issue) desde feat-001.1 (portado ja endurecido de stats-service), rodou verde em todas as 8 PRs da sessao (SV-148..178, feat-001..004 e feat-006, incluindo SonarCloud). Mesmo padrao ja aplicado em auth-service feat-007 e stats-service feat-007: feature de fechamento formal, sem codigo/workflow novo - so corrigir a description desatualizada (dizia 5 passos com atalho 'mvn sonar:sonar') pra bater com a realidade (6 passos, coordenadas completas do sonar-maven-plugin) e fechar.",
       "jira": "SV-179",
       "subtasks": [
@@ -162,7 +162,7 @@
           "jira": "SV-180"
         }
       ],
-      "evidence": ""
+      "evidence": "Fechada em 2026-09-08 - feature de fechamento formal, sem codigo/workflow novo (mesmo padrao de auth-service feat-007/stats-service feat-007). 1 subtask (SV-180, story SV-179), 1 PR de subtask (#22) com CI verde. Description corrigida de '5 passos com atalho mvn sonar:sonar' pra '6 passos reais' (changelog, i18n, build, testes+cobertura mvn -B verify, SonarCloud com coordenadas completas do sonar-maven-plugin, gate de zero issue via validate-sonar-issues.py) - pipeline ja rodava assim de verdade desde feat-001.1 (herdado ja endurecido de stats-service) e ja passou verde, com SonarCloud, em todas as 8 PRs desta sessao (SV-148 ate SV-180). Delivery Reviewer (passe proprio): PASS - nenhum achado, mudanca e so correcao de documentacao. ./init.sh do servico e da raiz verdes. Fecha epic-008 (raiz): feat-001..006 todas done - unico epic que faltava fechar para liberar epic-005 (telegram-integration) e epic-006 (web)."
     },
     {
       "id": "feat-006",
