@@ -62,4 +62,18 @@ class ResolvedIdentityRequestWrapperTest {
 		assertThat(Collections.list(wrapper.getHeaders("Authorization"))).isEmpty();
 		assertThat(Collections.list(wrapper.getHeaderNames())).doesNotContain("Authorization");
 	}
+
+	@Test
+	void shouldNeverForwardTheServiceKeyOrTelegramUserIdHeaders() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("X-Service-Key", "shared-secret");
+		request.addHeader("X-Telegram-User-Id", "12345");
+
+		ResolvedIdentityRequestWrapper wrapper = new ResolvedIdentityRequestWrapper(request, "resolved-user", "resolved-tenant");
+
+		assertThat(wrapper.getHeader("X-Service-Key")).isNull();
+		assertThat(wrapper.getHeader("X-Telegram-User-Id")).isNull();
+		assertThat(Collections.list(wrapper.getHeaders("X-Service-Key"))).isEmpty();
+		assertThat(Collections.list(wrapper.getHeaderNames())).doesNotContain("X-Service-Key", "X-Telegram-User-Id");
+	}
 }

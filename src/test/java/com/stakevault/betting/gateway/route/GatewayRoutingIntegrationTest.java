@@ -39,6 +39,8 @@ class GatewayRoutingIntegrationTest {
 	private static final AtomicReference<String> lastUserIdHeader = new AtomicReference<>();
 	private static final AtomicReference<String> lastTenantIdHeader = new AtomicReference<>();
 	private static final AtomicReference<Boolean> lastAuthorizationPresent = new AtomicReference<>();
+	private static final AtomicReference<Boolean> lastServiceKeyPresent = new AtomicReference<>();
+	private static final AtomicReference<Boolean> lastTelegramUserIdPresent = new AtomicReference<>();
 
 	private static final HttpServer DOWNSTREAM = startDownstream();
 
@@ -55,6 +57,8 @@ class GatewayRoutingIntegrationTest {
 				lastUserIdHeader.set(exchange.getRequestHeaders().getFirst("X-User-Id"));
 				lastTenantIdHeader.set(exchange.getRequestHeaders().getFirst("X-Tenant-Id"));
 				lastAuthorizationPresent.set(exchange.getRequestHeaders().containsKey("Authorization"));
+				lastServiceKeyPresent.set(exchange.getRequestHeaders().containsKey("X-Service-Key"));
+				lastTelegramUserIdPresent.set(exchange.getRequestHeaders().containsKey("X-Telegram-User-Id"));
 				byte[] body;
 				if (exchange.getRequestURI().getPath().equals("/api/v1/telegram-accounts/bot-user")) {
 					body = "{\"userId\":\"resolved-user\",\"tenantId\":\"resolved-tenant\"}"
@@ -166,6 +170,8 @@ class GatewayRoutingIntegrationTest {
 		assertThat(lastPath.get()).isEqualTo("/api/v1/bets");
 		assertThat(lastUserIdHeader.get()).isEqualTo("resolved-user");
 		assertThat(lastTenantIdHeader.get()).isEqualTo("resolved-tenant");
+		assertThat(lastServiceKeyPresent.get()).isFalse();
+		assertThat(lastTelegramUserIdPresent.get()).isFalse();
 	}
 
 	@Test
