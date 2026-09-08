@@ -41,20 +41,26 @@ public class PasetoAuthenticationFilter extends OncePerRequestFilter {
 	private final LocaleResolver localeResolver;
 	private final ObjectMapper objectMapper;
 	private final String actuatorBasePath;
+	private final String loginPath;
 
 	public PasetoAuthenticationFilter(@Value("${paseto.local-key}") String localKeyHex, MessageSource messageSource,
 			LocaleResolver localeResolver, ObjectMapper objectMapper,
-			@Value("${management.endpoints.web.base-path:/actuator}") String actuatorBasePath) {
+			@Value("${management.endpoints.web.base-path:/actuator}") String actuatorBasePath,
+			@Value("${gateway.login-path:/api/v1/auth/login}") String loginPath) {
 		this.localKey = new SecretKey(HexFormat.of().parseHex(localKeyHex), Version.V4);
 		this.messageSource = messageSource;
 		this.localeResolver = localeResolver;
 		this.objectMapper = objectMapper;
 		this.actuatorBasePath = actuatorBasePath;
+		this.loginPath = loginPath;
 	}
 
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) {
 		String decodedPath = UriUtils.decode(request.getRequestURI(), StandardCharsets.UTF_8);
+		if (decodedPath.equals(loginPath)) {
+			return true;
+		}
 		if (!decodedPath.startsWith(actuatorBasePath)) {
 			return false;
 		}

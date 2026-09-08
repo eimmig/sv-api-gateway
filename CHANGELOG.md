@@ -20,3 +20,7 @@ por serviço"). O "porquê" de cada mudança vive na issue e na mensagem de comm
 - [SV-156](https://stakevault.atlassian.net/browse/SV-156) - Filtro de validacao PASETO e injecao de X-User-Id/X-Tenant-Id
 - [SV-157](https://stakevault.atlassian.net/browse/SV-157) - Testes do filtro e do wrapper de headers
 - [SV-158](https://stakevault.atlassian.net/browse/SV-158) - CHANGELOG e verificacao final
+- [SV-165](https://stakevault.atlassian.net/browse/SV-165) - Roteamento para auth-service, bets-service e stats-service
+- [SV-166](https://stakevault.atlassian.net/browse/SV-166) - URLs de destino configuraveis (.env.example, application.yml)
+- [SV-167](https://stakevault.atlassian.net/browse/SV-167) - RouterFunction beans + correcao do bypass de login (achado real) + testes de roteamento
+- [SV-168](https://stakevault.atlassian.net/browse/SV-168) - CHANGELOG, atualizacao do vault (rota telegram-links + login publico) e verificacao final

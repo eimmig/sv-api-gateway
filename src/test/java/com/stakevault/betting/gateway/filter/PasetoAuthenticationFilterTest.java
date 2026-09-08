@@ -32,7 +32,7 @@ class PasetoAuthenticationFilterTest {
 	private final ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
 	private final LocaleResolver localeResolver = mock(LocaleResolver.class);
 	private final PasetoAuthenticationFilter filter = new PasetoAuthenticationFilter(
-			KEY_HEX, messageSource, localeResolver, new ObjectMapper(), "/actuator");
+			KEY_HEX, messageSource, localeResolver, new ObjectMapper(), "/actuator", "/api/v1/auth/login");
 
 	PasetoAuthenticationFilterTest() {
 		messageSource.setBasename("messages");
@@ -151,6 +151,18 @@ class PasetoAuthenticationFilterTest {
 		filter.doFilter(request, response, chain);
 
 		assertThat(chain.getRequest()).isNotNull();
+	}
+
+	@Test
+	void shouldPassThroughLoginPathWithoutRequiringToken() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/v1/auth/login");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockFilterChain chain = new MockFilterChain();
+
+		filter.doFilter(request, response, chain);
+
+		assertThat(chain.getRequest()).isNotNull();
+		assertThat(chain.getRequest()).isNotInstanceOf(ResolvedIdentityRequestWrapper.class);
 	}
 
 	@Test

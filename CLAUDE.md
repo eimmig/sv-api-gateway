@@ -68,11 +68,26 @@ tem implementação real.
   filtro independente, não acoplado ao de validação PASETO. Lacuna encontrada em 2026-09-07 (o
   backlog original de `feat-001..005` não cobria isso, apesar de `bets-service` já depender
   dele para popular `correlationId` no envelope de evento).
-- Roteamento: `/api/v1/users/**` e `/api/v1/auth/**` → `auth-service`;
-  `/api/v1/betting-houses/**`, `/api/v1/bets/**`, `/api/v1/transactions/**` → `bets-service`;
-  `/api/v1/statistics/**` → `stats-service`. Rotas sempre em inglês (ver
+- Roteamento: `/api/v1/users/**`, `/api/v1/auth/**` e `/api/v1/telegram-links/**` →
+  `auth-service`; `/api/v1/betting-houses/**`, `/api/v1/bets/**`, `/api/v1/transactions/**` →
+  `bets-service`; `/api/v1/statistics/**` → `stats-service`. Rotas sempre em inglês (ver
   `../../docs/API-CONTRACTS.md`) — atualize esta lista e `../../docs/services/api-gateway.md` no
-  mesmo commit se novas rotas forem adicionadas.
+  mesmo commit se novas rotas forem adicionadas. **`/api/v1/telegram-links/**` acrescentada em
+  `feat-003`** (achado real): não coberta por nenhum dos outros dois prefixos de `auth-service`,
+  apesar de já existir e exigir `X-User-Id`/`X-Tenant-Id` como `/api/v1/users` (`auth-service
+  feat-006`) — ausência era lacuna real da tabela de roteamento, não decisão deliberada.
+  `/api/v1/telegram-accounts/**` (confirmação via bot e lookup interno) fica fora da tabela até
+  `feat-004` (credencial de serviço), que a introduz com autenticação diferente
+  (`X-Service-Key`, não PASETO) — não faz sentido essa rota aceitar um caminho de autenticação
+  que `feat-003` ainda não implementa.
+- **`POST /api/v1/auth/login` é a única rota pública do Gateway** (achado real de `feat-003`,
+  corrigido antes de existir tráfego real): o filtro de PASETO (`feat-002`) rodava em toda rota
+  não-actuator, e a tabela de rotas antes de `feat-003` estava vazia, então o bug ficou latente —
+  a primeira rota real adicionada seria bloqueada para sempre (ninguém consegue logar se o login
+  também exige um token PASETO que só o login emite). `PasetoAuthenticationFilter.shouldNotFilter`
+  ganhou uma segunda exclusão (`/api/v1/auth/login`, além de `/actuator/**`) — qualquer rota
+  pública nova do Gateway segue o mesmo padrão, adicionada à mesma checagem, nunca via
+  configuração externa enquanto houver só essa exceção.
 - **CI/CD (`feat-005`)**: pipeline em `.github/workflows/ci.yml`, **dentro deste repositório**
   (este serviço é seu próprio repositório Git, não um monorepo — ver
   `../../docs/DECISIONS-LOG.md` "Topologia") — changelog, i18n, build, testes, SonarCloud.
