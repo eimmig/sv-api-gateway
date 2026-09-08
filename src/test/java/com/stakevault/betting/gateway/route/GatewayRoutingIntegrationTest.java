@@ -218,6 +218,22 @@ class GatewayRoutingIntegrationTest {
 	}
 
 	@Test
+	void shouldRouteSportsRequestViaServiceKeyToBetsService() throws Exception {
+		HttpRequest request = HttpRequest.newBuilder(URI.create("http://localhost:" + port + "/api/v1/sports"))
+				.header("X-Service-Key", "test-service-key")
+				.header("X-Telegram-User-Id", "bot-user")
+				.GET()
+				.build();
+
+		HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+		assertThat(response.statusCode()).isEqualTo(200);
+		assertThat(lastPath.get()).isEqualTo("/api/v1/sports");
+		assertThat(lastUserIdHeader.get()).isEqualTo("resolved-user");
+		assertThat(lastTenantIdHeader.get()).isEqualTo("resolved-tenant");
+	}
+
+	@Test
 	void shouldRouteTelegramLinksRequestToAuthService() throws Exception {
 		String userId = UUID.randomUUID().toString();
 		HttpRequest request = HttpRequest
