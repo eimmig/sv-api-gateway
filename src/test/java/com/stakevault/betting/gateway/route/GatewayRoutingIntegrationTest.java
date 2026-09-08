@@ -182,6 +182,42 @@ class GatewayRoutingIntegrationTest {
 	}
 
 	@Test
+	void shouldRouteSportsRequestToBetsService() throws Exception {
+		String userId = UUID.randomUUID().toString();
+		HttpRequest request = HttpRequest.newBuilder(URI.create("http://localhost:" + port + "/api/v1/sports"))
+				.header("Authorization", "Bearer " + validToken(userId, "acme")).GET().build();
+
+		HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+		assertThat(response.statusCode()).isEqualTo(200);
+		assertThat(lastPath.get()).isEqualTo("/api/v1/sports");
+	}
+
+	@Test
+	void shouldRouteLeaguesRequestToBetsService() throws Exception {
+		String userId = UUID.randomUUID().toString();
+		HttpRequest request = HttpRequest.newBuilder(URI.create("http://localhost:" + port + "/api/v1/leagues"))
+				.header("Authorization", "Bearer " + validToken(userId, "acme")).GET().build();
+
+		HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+		assertThat(response.statusCode()).isEqualTo(200);
+		assertThat(lastPath.get()).isEqualTo("/api/v1/leagues");
+	}
+
+	@Test
+	void shouldRouteMarketsRequestToBetsService() throws Exception {
+		String userId = UUID.randomUUID().toString();
+		HttpRequest request = HttpRequest.newBuilder(URI.create("http://localhost:" + port + "/api/v1/markets"))
+				.header("Authorization", "Bearer " + validToken(userId, "acme")).GET().build();
+
+		HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+		assertThat(response.statusCode()).isEqualTo(200);
+		assertThat(lastPath.get()).isEqualTo("/api/v1/markets");
+	}
+
+	@Test
 	void shouldRouteTelegramLinksRequestToAuthService() throws Exception {
 		String userId = UUID.randomUUID().toString();
 		HttpRequest request = HttpRequest
