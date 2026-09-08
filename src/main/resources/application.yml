@@ -18,6 +18,11 @@ logging:
 paseto:
   local-key: ${PASETO_LOCAL_KEY}
 
+gateway:
+  auth-service-url: ${AUTH_SERVICE_URL:http://localhost:8081}
+  bets-service-url: ${BETS_SERVICE_URL:http://localhost:8082}
+  stats-service-url: ${STATS_SERVICE_URL:http://localhost:8083}
+
 ---
 spring:
   config:
