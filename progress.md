@@ -2,9 +2,42 @@
 
 ## Estado Atual (Current State)
 
-**Última atualização:** 2026-09-07 (sessão seguinte, mesmo dia)
-**Feature ativa:** nenhuma (`feat-001`/`feat-002`/`feat-003` fechadas; `feat-004` ou `feat-006`
-são as próximas elegíveis)
+**Última atualização:** 2026-09-08
+**Feature ativa:** nenhuma (`feat-001..004` fechadas; `feat-005` ou `feat-006` são as próximas
+elegíveis)
+
+## `feat-004` fechada — credencial de serviço X-Service-Key (2026-09-08)
+
+Impedimento real encontrado ao planejar (antes de codificar): nenhuma nota do vault fixava
+**como** o Gateway recebe o `telegramUserId` na chamada `POST /api/v1/bets` com `X-Service-Key`
+— todas diziam "o Gateway resolve `telegramUserId -> userId/tenantId`", mas o corpo da
+requisição é o mesmo DTO de aposta do formulário web (sem esse campo). Levado ao usuário
+(`AskUserQuestion`): **header dedicado `X-Telegram-User-Id`**, não campo no corpo (evita acoplar
+o Gateway ao schema do DTO de `bets-service`, que ele hoje não desserializa). Registrado em
+`docs/DECISIONS-LOG.md` e propagado para `docs/API-CONTRACTS.md`, `docs/ARCHITECTURE.md`,
+`docs/services/{api-gateway,telegram-integration}.md` (repositório raiz) antes de qualquer
+código.
+
+`ServiceKeyAuthenticationFilter` (novo): valida `X-Service-Key` (constant-time, mesmo padrão de
+`AdminApiKeyFilter` de `auth-service`/`bets-service`/`stats-service`) + `X-Telegram-User-Id`,
+chama `GET /api/v1/telegram-accounts/{id}` em `auth-service` via `RestClient` (reaproveita
+`gateway.auth-service-url` de `feat-003`), injeta `X-User-Id`/`X-Tenant-Id` via
+`ResolvedIdentityRequestWrapper` (mesma classe de `feat-002`) e roteia para `bets-service`.
+`PasetoAuthenticationFilter` passa a pular requisições com `X-Service-Key` — os dois filtros
+nunca processam a mesma chamada (mesmo predicado de presença do header).
+
+**2 achados reais do próprio self-review, corrigidos antes do merge final** (PR #17, dado que
+isto é um segundo caminho de autenticação inteiro, risco alto): (1) `ResolvedIdentityRequestWrapper`
+só limpava `Authorization`, não `X-Service-Key`/`X-Telegram-User-Id` — o segredo compartilhado e
+o id do chamador vazavam pra `bets-service` em toda chamada via bot; (2) `RestClient.create(url)`
+sem timeout — falha lenta do `auth-service` travaria a thread do Gateway indefinidamente;
+corrigido com `SimpleClientHttpRequestFactory` (2s conexão/3s leitura). Um terceiro achado do
+gate `feature -> develop` do SonarCloud (`java:S7467`, variável de catch não usada) corrigido com
+unnamed pattern (`catch (HttpClientErrorException.NotFound _)`, Java 25).
+
+12 testes novos (6 do filtro, 1 de stripping de header, 1 end-to-end reforçado com asserts de
+não-vazamento) — 38 testes totais no serviço, 0 falhas. `./init.sh` do serviço e da raiz verdes.
+Pipeline completa (SonarCloud zero-issue) verde no PR `feature/SV-169` → `develop`.
 
 ## `feat-003` fechada — roteamento para os 3 serviços (2026-09-07, sessão seguinte)
 
