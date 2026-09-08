@@ -204,7 +204,7 @@
         {
           "id": "feat-007.1",
           "name": "Rotear /sports, /leagues, /markets para bets-service + testes + CHANGELOG e verificacao final",
-          "status": "in-progress",
+          "status": "done",
           "jira": "SV-196"
         }
       ],
