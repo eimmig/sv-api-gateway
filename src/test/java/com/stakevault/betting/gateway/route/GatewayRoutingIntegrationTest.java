@@ -19,6 +19,8 @@ import com.sun.net.httpserver.HttpServer;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.paseto4j.commons.SecretKey;
 import org.paseto4j.commons.Version;
 import org.paseto4j.version4.Paseto;
@@ -147,16 +149,17 @@ class GatewayRoutingIntegrationTest {
 		assertThat(lastPath.get()).isEqualTo("/api/v1/auth/login");
 	}
 
-	@Test
-	void shouldRouteStatisticsRequestToStatsService() throws Exception {
+	@ParameterizedTest
+	@ValueSource(strings = { "/api/v1/statistics", "/api/v1/sports", "/api/v1/leagues", "/api/v1/markets" })
+	void shouldRoutePasetoAuthenticatedRequestToItsDownstreamService(String path) throws Exception {
 		String userId = UUID.randomUUID().toString();
-		HttpRequest request = HttpRequest.newBuilder(URI.create("http://localhost:" + port + "/api/v1/statistics"))
+		HttpRequest request = HttpRequest.newBuilder(URI.create("http://localhost:" + port + path))
 				.header("Authorization", "Bearer " + validToken(userId, "acme")).GET().build();
 
 		HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
 		assertThat(response.statusCode()).isEqualTo(200);
-		assertThat(lastPath.get()).isEqualTo("/api/v1/statistics");
+		assertThat(lastPath.get()).isEqualTo(path);
 	}
 
 	@Test
@@ -179,42 +182,6 @@ class GatewayRoutingIntegrationTest {
 		assertThat(lastTelegramUserIdPresent.get()).isFalse();
 		assertThat(lastCorrelationIdHeader.get()).isEqualTo("service-key-path-correlation-id");
 		assertThat(response.headers().firstValue("X-Correlation-Id")).contains("service-key-path-correlation-id");
-	}
-
-	@Test
-	void shouldRouteSportsRequestToBetsService() throws Exception {
-		String userId = UUID.randomUUID().toString();
-		HttpRequest request = HttpRequest.newBuilder(URI.create("http://localhost:" + port + "/api/v1/sports"))
-				.header("Authorization", "Bearer " + validToken(userId, "acme")).GET().build();
-
-		HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-		assertThat(response.statusCode()).isEqualTo(200);
-		assertThat(lastPath.get()).isEqualTo("/api/v1/sports");
-	}
-
-	@Test
-	void shouldRouteLeaguesRequestToBetsService() throws Exception {
-		String userId = UUID.randomUUID().toString();
-		HttpRequest request = HttpRequest.newBuilder(URI.create("http://localhost:" + port + "/api/v1/leagues"))
-				.header("Authorization", "Bearer " + validToken(userId, "acme")).GET().build();
-
-		HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-		assertThat(response.statusCode()).isEqualTo(200);
-		assertThat(lastPath.get()).isEqualTo("/api/v1/leagues");
-	}
-
-	@Test
-	void shouldRouteMarketsRequestToBetsService() throws Exception {
-		String userId = UUID.randomUUID().toString();
-		HttpRequest request = HttpRequest.newBuilder(URI.create("http://localhost:" + port + "/api/v1/markets"))
-				.header("Authorization", "Bearer " + validToken(userId, "acme")).GET().build();
-
-		HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-		assertThat(response.statusCode()).isEqualTo(200);
-		assertThat(lastPath.get()).isEqualTo("/api/v1/markets");
 	}
 
 	@Test
