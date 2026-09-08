@@ -2,9 +2,45 @@
 
 ## Estado Atual (Current State)
 
-**Última atualização:** 2026-09-07
-**Feature ativa:** nenhuma (`feat-001`/`feat-002` fechadas; `feat-003` ou `feat-006` são as
-próximas elegíveis)
+**Última atualização:** 2026-09-07 (sessão seguinte, mesmo dia)
+**Feature ativa:** nenhuma (`feat-001`/`feat-002`/`feat-003` fechadas; `feat-004` ou `feat-006`
+são as próximas elegíveis)
+
+## `feat-003` fechada — roteamento para os 3 serviços (2026-09-07, sessão seguinte)
+
+3 subtasks (SV-166..168, story SV-165), 2 achados reais corrigidos antes do merge:
+
+1. **`POST /api/v1/auth/login` ficaria bloqueado para sempre**: o filtro global de PASETO
+   (`feat-002`) roda em toda rota exceto as excluídas; antes de `feat-003` não havia rota
+   nenhuma, então o bug ficou latente. Corrigido com exceção exata em
+   `PasetoAuthenticationFilter.shouldNotFilter` (`gateway.login-path`, configurável — mesmo
+   padrão do `management.endpoints.web.base-path` de `feat-002`, inclusive reincidência do
+   `java:S1075` do SonarCloud, corrigida do mesmo jeito: parametrizar de verdade, não suprimir).
+2. **`/api/v1/telegram-links/**` faltava na tabela de rotas**: endpoint já existia em
+   `auth-service` (`feat-006`) mas não estava coberto por nenhum prefixo documentado em nenhuma
+   nota do vault — ficaria inalcançável via Gateway. Acrescentado ao grupo de `auth-service`;
+   `/api/v1/telegram-accounts/**` continua fora, escopo de `feat-004` (`X-Service-Key`).
+
+**Pré-requisito cross-service resolvido antes de desenhar a tabela**: nenhuma nota fixava porta
+HTTP nem URL de destino dos 3 serviços Java (todos no default 8080, colidindo em dev local).
+Decisão tomada com o usuário: porta fixa por serviço (`auth-service` 8081, `bets-service` 8082,
+`stats-service` 8083) + `AUTH_SERVICE_URL`/`BETS_SERVICE_URL`/`STATS_SERVICE_URL` configuráveis
+no Gateway (`docs/DECISIONS-LOG.md`, 2026-09-07). Implementado como 3 features independentes nos
+outros serviços (`auth-service feat-008`/SV-159, `bets-service feat-011`/SV-161, `stats-service
+feat-008`/SV-163), cada uma com Plan Review/Jira/PR/CI própria, **antes** desta feature poder
+prosseguir — os 3 repositórios estavam com epic `done`, reabertos só para essa mudança mínima.
+
+`RouteConfig` (3 `@Bean RouterFunction<ServerResponse>`, Spring Cloud Gateway Server WebMVC —
+`GatewayRouterFunctions.route(id).route(predicate, HandlerFunctions.http()).before(BeforeFilterFunctions.uri(url)).build()`)
+— API confirmada via `javap` contra os jars reais (`spring-cloud-gateway-server-webmvc` 5.0.3,
+`spring-webmvc` 7.0.9), não só conhecimento treinado. Testes de roteamento usam
+`com.sun.net.httpserver.HttpServer` (JDK nativo) como stub dos 3 destinos — WireMock rejeitado
+por risco de conflito Jackson 2/3 (projeto usa Jackson 3 desde `feat-002`). 5 testes novos de
+integração HTTP real + 1 de bypass de login no filtro (30 testes no serviço, 0 falhas).
+
+Delivery Reviewer (passe próprio, sem subagentes — risco alto de autenticação, mitigado com
+grounding real de bytecode/versão): PASS. `./init.sh` do serviço e da raiz verdes. Pipeline
+completa (SonarCloud zero-issue) verde no PR `feature/SV-165` → `develop`.
 
 ## Status
 
