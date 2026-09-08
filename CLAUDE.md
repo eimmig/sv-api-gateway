@@ -72,13 +72,18 @@ tem implementação real.
   precisar tratar um formato de erro diferente vindo do Gateway. `title`/`detail` localizados
   por `Accept-Language` (`pt-BR`/`en-US`/`es`, ver `../../docs/CONVENTIONS.md` seção
   "Internacionalização (i18n)") — `type` continua um slug fixo em inglês.
-- **Filtro global de `X-Correlation-Id` (`feat-006`)**: gera o header se ausente, propaga se já
-  vier do cliente, injeta no MDC/log estruturado e repassa no request roteado para
+- **Filtro global de `X-Correlation-Id` (`feat-006`, implementado em 2026-09-08)**:
+  `CorrelationIdFilter` (`@Order(Ordered.HIGHEST_PRECEDENCE)`, sem `shouldNotFilter`) gera o
+  header quando ausente/em branco, propaga quando já vem do cliente, injeta no MDC
+  (`correlationId`) e repassa no request roteado via `CorrelationIdRequestWrapper` para
   `auth-service`/`bets-service`/`stats-service` — ver `../../docs/OBSERVABILITY-AND-CONFIG.md`.
-  Roda para **toda** rota, autenticada (`feat-002`) ou via `X-Service-Key` (`feat-004`) —
-  filtro independente, não acoplado ao de validação PASETO. Lacuna encontrada em 2026-09-07 (o
-  backlog original de `feat-001..005` não cobria isso, apesar de `bets-service` já depender
-  dele para popular `correlationId` no envelope de evento).
+  Roda para **toda** rota, autenticada (`feat-002`) ou via `X-Service-Key` (`feat-004`), rodando
+  antes dos dois (precedência mais alta) para que os próprios logs de rejeição desses filtros já
+  carreguem o correlation id — filtro independente, não acoplado ao de validação PASETO. Também
+  ecoa o header na response (decisão além do contrato documentado, não contradiz nada). Lacuna
+  encontrada em 2026-09-07 (o backlog original de `feat-001..005` não cobria isso); fechada nesta
+  feature. `bets-service` ainda não consome o header real no envelope de evento — gap sinalizado
+  em `docs/services/bets-service.md`, fora do escopo deste serviço.
 - Roteamento: `/api/v1/users/**`, `/api/v1/auth/**` e `/api/v1/telegram-links/**` →
   `auth-service`; `/api/v1/betting-houses/**`, `/api/v1/bets/**`, `/api/v1/transactions/**` →
   `bets-service`; `/api/v1/statistics/**` → `stats-service`. Rotas sempre em inglês (ver
