@@ -3,8 +3,43 @@
 ## Estado Atual (Current State)
 
 **Última atualização:** 2026-09-08
-**Feature ativa:** nenhuma (`feat-001..004` fechadas; `feat-005` ou `feat-006` são as próximas
-elegíveis)
+**Feature ativa:** nenhuma (`feat-001..004` e `feat-006` fechadas; só `feat-005` resta)
+
+## `feat-006` fechada — filtro global de X-Correlation-Id (2026-09-08)
+
+Lacuna real encontrada na auditoria pré-codificação de `epic-008` (2026-09-07): `feat-001..005`
+nunca cobriam o filtro de `X-Correlation-Id` já documentado em
+`docs/OBSERVABILITY-AND-CONFIG.md`, apesar de `bets-service` já depender dele para popular
+`correlationId` no envelope de evento. `CorrelationIdFilter` (novo) roda com
+`@Order(Ordered.HIGHEST_PRECEDENCE)` e sem `shouldNotFilter` (toda rota, inclusive
+`/actuator/**`) — gera `UUID.randomUUID()` quando o header chega ausente/em branco, propaga
+quando presente, `MDC.put`/`remove("correlationId")` em torno do `chain.doFilter`, ecoa o header
+na response (decisão minha, além do contrato documentado, mas não contradiz nada) e encaminha via
+`CorrelationIdRequestWrapper` (mesmo padrão de `ResolvedIdentityRequestWrapper`) para o proxy HTTP
+repassar a `auth-service`/`bets-service`/`stats-service`. Roda antes de
+`PasetoAuthenticationFilter`/`ServiceKeyAuthenticationFilter` (nenhum dos dois tem `@Order`,
+default `LOWEST_PRECEDENCE`) para que os próprios logs de rejeição desses filtros já carreguem o
+correlation id.
+
+**Achado real do Plan Review, corrigido antes de codificar**: o plano original propunha
+acrescentar uma feature nova (`feat-013`) a `services/bets-service/feature_list.json` sinalizando
+que `BetEventEnvelope` ainda não consome o header real — violaria "stay in scope" deste
+`CLAUDE.md` (feature_list.json é artefato de harness de outro serviço, não vault). Corrigido:
+sinalizado só via `docs/services/bets-service.md` (repositório raiz `sv-harness`), sem tocar em
+nada dentro de `services/bets-service/`.
+
+**Achado real do Delivery Reviewer, corrigido antes de fechar**: os 2 testes de integração novos
+só exercitavam a rota pública `/api/v1/auth/login` (sem `ResolvedIdentityRequestWrapper` por
+cima) — não provavam a composição de wrappers aninhados nas rotas autenticadas. Corrigido
+estendendo os 2 testes de integração já existentes (PASETO, `X-Service-Key`) com asserts de
+`X-Correlation-Id`, em vez de deixar a lacuna. Test Suite Auditor: PASS — matriz final cobre as 4
+combinações reais (sem auth/PASETO/`X-Service-Key` × header ausente/presente).
+
+2 subtasks (SV-177/178, story SV-176), 2 PRs (#19 filtro+testes, #20 fechamento) com CI verde,
+depois PR #21 (story → `develop`) com CI + SonarCloud verdes. 47 testes totais no serviço, 0
+falhas, gate JaCoCo 80% real. `./init.sh` do serviço e da raiz verdes.
+`docs/services/api-gateway.md` e `docs/services/bets-service.md` atualizados no mesmo commit
+lógico do fechamento.
 
 ## `feat-004` fechada — credencial de serviço X-Service-Key (2026-09-08)
 
