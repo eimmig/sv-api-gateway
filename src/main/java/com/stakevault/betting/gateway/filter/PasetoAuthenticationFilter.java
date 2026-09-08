@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.HexFormat;
-import java.util.LinkedHashMap;
 import java.util.Locale;
 
 import org.paseto4j.commons.SecretKey;
@@ -14,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.LocaleResolver;
@@ -57,6 +55,9 @@ public class PasetoAuthenticationFilter extends OncePerRequestFilter {
 
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) {
+		if (request.getHeader(ServiceKeyAuthenticationFilter.SERVICE_KEY_HEADER) != null) {
+			return true;
+		}
 		String decodedPath = UriUtils.decode(request.getRequestURI(), StandardCharsets.UTF_8);
 		if (decodedPath.equals(loginPath)) {
 			return true;
@@ -102,17 +103,7 @@ public class PasetoAuthenticationFilter extends OncePerRequestFilter {
 		Locale locale = localeResolver.resolveLocale(request);
 		String title = ProblemDetailMessages.title(exception, locale, messageSource);
 		String detail = ProblemDetailMessages.detail(exception, locale, messageSource);
-		int status = exception.httpStatusCode();
-
-		response.setStatus(status);
-		response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
-		response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-		var body = new LinkedHashMap<String, Object>();
-		body.put("type", "https://docs/errors/" + ProblemDetailMessages.typeSlug(exception));
-		body.put("title", title);
-		body.put("status", status);
-		body.put("detail", detail);
-		body.put("instance", request.getRequestURI());
-		objectMapper.writeValue(response.getOutputStream(), body);
+		FilterProblemWriter.write(response, request, objectMapper, exception.httpStatusCode(),
+				ProblemDetailMessages.typeSlug(exception), title, detail);
 	}
 }
