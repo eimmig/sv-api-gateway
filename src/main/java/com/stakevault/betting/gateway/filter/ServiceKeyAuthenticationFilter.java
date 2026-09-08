@@ -82,7 +82,7 @@ public class ServiceKeyAuthenticationFilter extends OncePerRequestFilter {
 					.retrieve()
 					.body(TelegramAccountLookupResponse.class);
 		}
-		catch (HttpClientErrorException.NotFound e) {
+		catch (HttpClientErrorException.NotFound _) {
 			writeProblem(request, response, new TelegramAccountNotFoundException());
 			return;
 		}
