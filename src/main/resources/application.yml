@@ -23,6 +23,7 @@ gateway:
   auth-service-url: ${AUTH_SERVICE_URL:http://localhost:8081}
   bets-service-url: ${BETS_SERVICE_URL:http://localhost:8082}
   stats-service-url: ${STATS_SERVICE_URL:http://localhost:8083}
+  service-key: ${SERVICE_KEY}
 
 ---
 spring:
@@ -32,3 +33,6 @@ spring:
 
 paseto:
   local-key: 93f681c1304df4c64f73a0df5c58c7eb097927246ad5b850247a97ef14774bc7
+
+gateway:
+  service-key: test-service-key

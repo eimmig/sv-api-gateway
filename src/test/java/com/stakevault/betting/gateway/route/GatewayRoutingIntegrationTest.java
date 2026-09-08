@@ -55,7 +55,15 @@ class GatewayRoutingIntegrationTest {
 				lastUserIdHeader.set(exchange.getRequestHeaders().getFirst("X-User-Id"));
 				lastTenantIdHeader.set(exchange.getRequestHeaders().getFirst("X-Tenant-Id"));
 				lastAuthorizationPresent.set(exchange.getRequestHeaders().containsKey("Authorization"));
-				byte[] body = "{}".getBytes(StandardCharsets.UTF_8);
+				byte[] body;
+				if (exchange.getRequestURI().getPath().equals("/api/v1/telegram-accounts/bot-user")) {
+					body = "{\"userId\":\"resolved-user\",\"tenantId\":\"resolved-tenant\"}"
+							.getBytes(StandardCharsets.UTF_8);
+					exchange.getResponseHeaders().add("Content-Type", "application/json");
+				}
+				else {
+					body = "{}".getBytes(StandardCharsets.UTF_8);
+				}
 				exchange.sendResponseHeaders(200, body.length);
 				exchange.getResponseBody().write(body);
 				exchange.close();
@@ -141,6 +149,23 @@ class GatewayRoutingIntegrationTest {
 
 		assertThat(response.statusCode()).isEqualTo(200);
 		assertThat(lastPath.get()).isEqualTo("/api/v1/statistics");
+	}
+
+	@Test
+	void shouldRouteServiceKeyAuthenticatedRequestToBetsServiceWithResolvedIdentity() throws Exception {
+		HttpRequest request = HttpRequest.newBuilder(URI.create("http://localhost:" + port + "/api/v1/bets"))
+				.header("X-Service-Key", "test-service-key")
+				.header("X-Telegram-User-Id", "bot-user")
+				.header("X-User-Id", "attacker-supplied")
+				.POST(HttpRequest.BodyPublishers.noBody())
+				.build();
+
+		HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+		assertThat(response.statusCode()).isEqualTo(200);
+		assertThat(lastPath.get()).isEqualTo("/api/v1/bets");
+		assertThat(lastUserIdHeader.get()).isEqualTo("resolved-user");
+		assertThat(lastTenantIdHeader.get()).isEqualTo("resolved-tenant");
 	}
 
 	@Test

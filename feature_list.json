@@ -125,10 +125,23 @@
       "dependencies": [
         "feat-003"
       ],
-      "status": "not-started",
-      "plan_review": "",
-      "jira": "",
-      "subtasks": [],
+      "status": "in-progress",
+      "plan_review": "2026-09-07, Plan Reviewer rodado antes de codificar - passe proprio, sem subagentes (independencia reduzida declarada). Impedimento real encontrado e resolvido com o usuario (AskUserQuestion) antes de desenhar o filtro: nenhuma nota do vault (docs/ARCHITECTURE.md, docs/API-CONTRACTS.md, docs/services/{api-gateway,telegram-integration,auth-service}.md) fixava COMO o Gateway recebe o telegramUserId na chamada POST /api/v1/bets com X-Service-Key - todas so diziam 'o Gateway resolve telegramUserId -> userId/tenantId', mas o corpo da requisicao e o mesmo DTO de aposta do formulario web (sem esse campo) e nenhum header era nomeado em lugar nenhum. Decisao: header dedicado X-Telegram-User-Id (rejeitada a alternativa de campo no corpo JSON - acoplaria o Gateway ao schema do DTO de bets-service, que ele hoje nao desserializa, so faz proxy bruto). Registrado em docs/DECISIONS-LOG.md, docs/API-CONTRACTS.md, docs/services/{api-gateway,telegram-integration}.md e docs/ARCHITECTURE.md (repositorio raiz) antes de codificar. Grounding do design: TelegramAccountsController/TelegramAccountLookupResponse/TelegramAccountNotFoundException de auth-service lidos diretamente (nao supostos) para confirmar contrato exato (GET /api/v1/telegram-accounts/{id} -> 200 {userId,tenantId} ou 404); AdminApiKeyFilter de auth-service/bets-service/stats-service lido para replicar o mesmo padrao de comparacao constant-time (MessageDigest.isEqual) e estrutura de excecao localizada (LocalizedFilterException/ProblemDetailMessages, ja existentes deste servico desde feat-002). ServiceKeyAuthenticationFilter reaproveita gateway.auth-service-url (feat-003, mesmo destino) via RestClient e ResolvedIdentityRequestWrapper (feat-002, generica o bastante para os dois mecanismos de autenticacao) - nenhum novo comportamento de rede alem do necessario. PasetoAuthenticationFilter.shouldNotFilter ganha uma exclusao para requisicoes com X-Service-Key presente (delega inteiramente ao novo filtro - os dois nunca processam a mesma chamada, sem @Order necessario). Duplicacao entre PasetoAuthenticationFilter e o filtro novo (escrita de corpo RFC7807) extraida para FilterProblemWriter (mesmo nome/formato ja usado em bets-service/stats-service). Risco residual verificado empiricamente, nao assumido: RestClient.create(url) (sem builder customizado) desserializa corretamente contra o ObjectMapper Jackson 3 (tools.jackson.databind) ja usado neste servico desde feat-002 - confirmado rodando o teste real contra um stub HTTP (com.sun.net.httpserver.HttpServer, mesmo padrao de feat-003) antes de assumir compatibilidade. Erro de rede/5xx do auth-service mapeado para 503 (AuthServiceUnavailableException) - decisao minha, nao do usuario, para nunca deixar RestClientException vazar como HTML nao-RFC7807 (nenhuma nota exigia isso explicitamente, mas o invariante 'todo erro deste servico e RFC7807' ja e normativo em docs/API-CONTRACTS.md).",
+      "jira": "SV-169",
+      "subtasks": [
+        {
+          "id": "feat-004.1",
+          "name": "ServiceKeyAuthenticationFilter (validacao de chave, lookup em auth-service, injecao de identidade) + testes",
+          "status": "done",
+          "jira": "SV-170"
+        },
+        {
+          "id": "feat-004.2",
+          "name": "CHANGELOG, atualizacao do vault (header X-Telegram-User-Id) e verificacao final",
+          "status": "in-progress",
+          "jira": "SV-171"
+        }
+      ],
       "evidence": ""
     },
     {

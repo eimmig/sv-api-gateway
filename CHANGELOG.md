@@ -24,3 +24,6 @@ por serviço"). O "porquê" de cada mudança vive na issue e na mensagem de comm
 - [SV-166](https://stakevault.atlassian.net/browse/SV-166) - URLs de destino configuraveis (.env.example, application.yml)
 - [SV-167](https://stakevault.atlassian.net/browse/SV-167) - RouterFunction beans + correcao do bypass de login (achado real) + testes de roteamento
 - [SV-168](https://stakevault.atlassian.net/browse/SV-168) - CHANGELOG, atualizacao do vault (rota telegram-links + login publico) e verificacao final
+- [SV-169](https://stakevault.atlassian.net/browse/SV-169) - Credencial de servico (X-Service-Key) para telegram-integration
+- [SV-170](https://stakevault.atlassian.net/browse/SV-170) - ServiceKeyAuthenticationFilter (validacao de chave, lookup em auth-service, injecao de identidade) + testes
+- [SV-171](https://stakevault.atlassian.net/browse/SV-171) - CHANGELOG, atualizacao do vault (header X-Telegram-User-Id) e verificacao final

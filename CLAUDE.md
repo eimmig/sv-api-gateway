@@ -40,15 +40,26 @@ tem implementação real.
   `../../docs/DECISIONS-LOG.md`) antes de rotear para `bets-service`/`stats-service`. Nunca
   repassa o token PASETO original para os serviços downstream — eles não sabem validá-lo e não
   devem precisar.
-- **Credencial de serviço para `telegram-integration`**: `telegram-integration` não tem token
-  PASETO (não há usuário logado no fluxo do bot). Ele se autentica com um header
-  `X-Service-Key` (segredo estático por ambiente, ver `.env.example` e
-  `../../docs/OBSERVABILITY-AND-CONFIG.md`) em vez de um token PASETO. Para essas chamadas, o
-  Gateway resolve `telegramUserId -> userId`/`tenantId` chamando o endpoint interno de
-  `auth-service` (`GET /api/v1/telegram-accounts/{telegramUserId}`, ver
-  `../../docs/services/auth-service.md`) e injeta `X-User-Id`/`X-Tenant-Id` antes de rotear para
-  `bets-service`. Não aceite esses headers vindo diretamente do chamador em nenhum caminho —
-  sempre derivados aqui, nunca repassados.
+- **Credencial de serviço para `telegram-integration` (`feat-004`)**: `telegram-integration` não
+  tem token PASETO (não há usuário logado no fluxo do bot). Ele se autentica com um header
+  `X-Service-Key` (segredo estático por ambiente, `gateway.service-key`/`SERVICE_KEY`, ver
+  `.env.example` e `../../docs/OBSERVABILITY-AND-CONFIG.md`) em vez de um token PASETO, e informa
+  **qual** usuário do Telegram fez a chamada via um segundo header, `X-Telegram-User-Id`
+  (decisão de 2026-09-07, ver `../../docs/DECISIONS-LOG.md` — nenhuma nota fixava isso antes;
+  corpo da requisição continua idêntico ao do formulário web). `ServiceKeyAuthenticationFilter`
+  (`OncePerRequestFilter`, só processa requisições com `X-Service-Key` presente —
+  `PasetoAuthenticationFilter` pula essas mesmas requisições via `shouldNotFilter`, os dois
+  nunca processam a mesma chamada): valida a chave (constant-time, `MessageDigest.isEqual`,
+  mesmo padrão de `AdminApiKeyFilter` de `auth-service`), chama internamente
+  `GET /api/v1/telegram-accounts/{telegramUserId}` em `auth-service` via `RestClient` (reaproveita
+  `gateway.auth-service-url` de `feat-003` — mesmo destino, sem URL nova) para resolver
+  `userId`/`tenantId`, e injeta os dois via `ResolvedIdentityRequestWrapper` (mesma classe de
+  `feat-002`, genérica o bastante para os dois mecanismos de autenticação) antes de rotear para
+  `bets-service`. Não aceite `X-Service-Key`, `X-Telegram-User-Id`, `X-User-Id` nem `X-Tenant-Id`
+  repassados adiante — sempre derivados aqui. Respostas: `401` chave ausente/inválida ou
+  `X-Telegram-User-Id` ausente; `404` sem vínculo (`auth-service` retorna 404, repassado);
+  `503` se a chamada a `auth-service` falhar por qualquer outro motivo (rede, 5xx) — nunca deixa
+  a exceção crua vazar como HTML não-RFC7807.
   > **Resolvido em 2026-08-02** (ver `../../docs/DECISIONS-LOG.md` item 15): `auth-service`
   > resolve esse lookup consultando o diretório `TELEGRAM_LINK` no schema `public` — não assume
   > mais um `USER` global nem precisa varrer schemas.
