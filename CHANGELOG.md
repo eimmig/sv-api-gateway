@@ -30,3 +30,5 @@ por serviço"). O "porquê" de cada mudança vive na issue e na mensagem de comm
 - [SV-176](https://stakevault.atlassian.net/browse/SV-176) - Filtro global de X-Correlation-Id
 - [SV-177](https://stakevault.atlassian.net/browse/SV-177) - CorrelationIdFilter + CorrelationIdRequestWrapper + testes
 - [SV-178](https://stakevault.atlassian.net/browse/SV-178) - CHANGELOG, atualizacao do vault (nota de bets-service sobre correlationId pendente) e verificacao final
+- [SV-179](https://stakevault.atlassian.net/browse/SV-179) - Pipeline de CI (GitHub Actions + SonarCloud)
+- [SV-180](https://stakevault.atlassian.net/browse/SV-180) - Fechamento formal - description corrigida e verificacao final
