@@ -3,12 +3,14 @@ package com.stakevault.betting.gateway.filter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.time.Duration;
 import java.util.Locale;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
@@ -27,9 +29,12 @@ import jakarta.servlet.http.HttpServletResponse;
 public class ServiceKeyAuthenticationFilter extends OncePerRequestFilter {
 
 	static final String SERVICE_KEY_HEADER = "X-Service-Key";
-	private static final String TELEGRAM_USER_ID_HEADER = "X-Telegram-User-Id";
+	static final String TELEGRAM_USER_ID_HEADER = "X-Telegram-User-Id";
 
 	private static final Logger log = LoggerFactory.getLogger(ServiceKeyAuthenticationFilter.class);
+
+	private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(2);
+	private static final Duration READ_TIMEOUT = Duration.ofSeconds(3);
 
 	private final String configuredServiceKey;
 	private final MessageSource messageSource;
@@ -44,7 +49,10 @@ public class ServiceKeyAuthenticationFilter extends OncePerRequestFilter {
 		this.messageSource = messageSource;
 		this.localeResolver = localeResolver;
 		this.objectMapper = objectMapper;
-		this.authServiceClient = RestClient.create(authServiceUrl);
+		SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+		requestFactory.setConnectTimeout(CONNECT_TIMEOUT);
+		requestFactory.setReadTimeout(READ_TIMEOUT);
+		this.authServiceClient = RestClient.builder().baseUrl(authServiceUrl).requestFactory(requestFactory).build();
 	}
 
 	@Override

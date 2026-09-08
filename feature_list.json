@@ -138,7 +138,7 @@
         {
           "id": "feat-004.2",
           "name": "CHANGELOG, atualizacao do vault (header X-Telegram-User-Id) e verificacao final",
-          "status": "in-progress",
+          "status": "done",
           "jira": "SV-171"
         }
       ],
