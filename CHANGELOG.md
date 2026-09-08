@@ -32,3 +32,5 @@ por serviço"). O "porquê" de cada mudança vive na issue e na mensagem de comm
 - [SV-178](https://stakevault.atlassian.net/browse/SV-178) - CHANGELOG, atualizacao do vault (nota de bets-service sobre correlationId pendente) e verificacao final
 - [SV-179](https://stakevault.atlassian.net/browse/SV-179) - Pipeline de CI (GitHub Actions + SonarCloud)
 - [SV-180](https://stakevault.atlassian.net/browse/SV-180) - Fechamento formal - description corrigida e verificacao final
+- [SV-195](https://stakevault.atlassian.net/browse/SV-195) - Rotear catalogos (/api/v1/sports, /leagues, /markets) para bets-service
+- [SV-196](https://stakevault.atlassian.net/browse/SV-196) - Rotear /sports, /leagues, /markets para bets-service + testes + CHANGELOG e verificacao final

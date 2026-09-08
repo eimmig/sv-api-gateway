@@ -189,6 +189,26 @@
           "jira": "SV-178"
         }
       ]
+    },
+    {
+      "id": "feat-007",
+      "name": "Rotear catalogos (/api/v1/sports, /leagues, /markets) para bets-service",
+      "description": "Lacuna real encontrada durante o Plan Review de telegram-integration feat-004 (2026-09-08): RouteConfig.betsServiceRoute so roteia /api/v1/betting-houses/**, /api/v1/bets/** e /api/v1/transactions/** - os 3 catalogos de bets-service usados pra resolver sport/league/market (bets-service feat-002, docs/services/bets-service.md) nunca ganharam rota, apesar de bets-service ja expor GET/POST para eles desde aquela feature. telegram-integration feat-004 precisa buscar esses 3 catalogos atraves do Gateway (mesmo par X-Service-Key/X-Telegram-User-Id ja usado em POST /api/v1/bets) para perguntar ao usuario por lista numerada (decisao de 2026-09-08, ver docs/DECISIONS-LOG.md 'Resolucao de catalogo... no fluxo Telegram'). /api/v1/tipsters fica de fora de proposito: tipsterId e opcional em CreateBetRequest e telegram-integration feat-004 nao o preenche.",
+      "dependencies": [
+        "feat-001"
+      ],
+      "status": "in-progress",
+      "plan_review": "2026-09-08, Plan Reviewer (review-suite:ln-11-plan-reviewer) rodado antes de codificar, no escopo do plan review de telegram-integration feat-004 (achado BLOCKER daquele review, nao um review separado - risco baixo, mudanca de 3 predicados de rota + teste, mesmo padrao ja existente pras outras 3 rotas de bets-service). Veredito do achado: mudanca minima e indispensavel, mesmo precedente de feat-008 (porta fixa, auth-service/bets-service/stats-service) e feat-004 (X-Correlation-Id) - epic-008 ja done, reaberto so para este gap. Grounding: leitura direta de RouteConfig.java (confirmado, so 3 dos 7 recursos de bets-service roteados), ServiceKeyAuthenticationFilter.java (shouldNotFilter so verifica presenca de X-Service-Key, nao a rota - filtro ja generico, nenhuma mudanca necessaria nele) e SportsController/LeaguesController/MarketsController.java (GET paginado, CatalogResponse {id,name}, ja existentes desde bets-service feat-002). Sem mudanca de filtro, sem novo mecanismo de autenticacao - so estender os predicados path() ja existentes no mesmo Bean.",
+      "jira": "SV-195",
+      "subtasks": [
+        {
+          "id": "feat-007.1",
+          "name": "Rotear /sports, /leagues, /markets para bets-service + testes + CHANGELOG e verificacao final",
+          "status": "done",
+          "jira": "SV-196"
+        }
+      ],
+      "evidence": ""
     }
   ]
 }
