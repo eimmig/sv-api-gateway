@@ -19,6 +19,7 @@ paseto:
   local-key: ${PASETO_LOCAL_KEY}
 
 gateway:
+  login-path: /api/v1/auth/login
   auth-service-url: ${AUTH_SERVICE_URL:http://localhost:8081}
   bets-service-url: ${BETS_SERVICE_URL:http://localhost:8082}
   stats-service-url: ${STATS_SERVICE_URL:http://localhost:8083}
