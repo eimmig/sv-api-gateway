@@ -209,6 +209,26 @@
         }
       ],
       "evidence": "Fechada em 2026-09-08 - 1 subtask (SV-196, story SV-195), 2 PRs (#24 subtask->story, #25 story->develop) com CI real e verde (incluindo SonarCloud). RouteConfig.betsServiceRoute estendido com 3 predicados novos (/api/v1/sports/**, /api/v1/leagues/**, /api/v1/markets/**) - nenhum filtro tocado, ServiceKeyAuthenticationFilter/PasetoAuthenticationFilter ja sao genericos por presenca de header, nao por rota. Delivery Reviewer (passe proprio, sem subagentes - risco baixo): CONCERNS -> corrigido antes de fechar - achado real P2, os 3 testes novos so provavam o caminho PASETO, nao o X-Service-Key que e o consumidor real que motivou a feature (telegram-integration); corrigido com 1 teste novo via X-Service-Key (shouldRouteSportsRequestViaServiceKeyToBetsService, mecanismo identico nas 3 rotas, 1 teste basta). Achado real do SonarCloud no PR #25 (java:S5976): shouldRouteStatisticsRequestToStatsService + os 3 testes PASETO novos eram estruturalmente identicos (GET + PASETO + assert 200 + assert path) - corrigido substituindo os 4 por 1 @ParameterizedTest (@ValueSource dos 4 paths). docs/services/api-gateway.md atualizado no mesmo commit logico: tabela de roteamento com as 3 rotas novas, e corrigido um achado real de documentacao desatualizada (a nota previa que /api/v1/telegram-accounts/** seria roteada em feat-004 deste servico - na verdade telegram-integration feat-003 decidiu bypassar o Gateway pra essa chamada, achado ja registrado em docs/DECISIONS-LOG.md mas nunca propagado pra esta nota ate agora). ./init.sh do servico e da raiz verdes. Libera telegram-integration feat-004 (estava bloqueada por este gap)."
+    },
+    {
+      "id": "feat-008",
+      "name": "Rotear /api/v1/tipsters para bets-service",
+      "description": "Lacuna real encontrada durante infra/feat-002 (teste de resiliencia cross-service do epic-007, 2026-09-09): RouteConfig.betsServiceRoute nunca roteou /api/v1/tipsters/**, apesar de TipstersController existir em bets-service desde aquele servico feat-002. Nao era omissao de feat-007 (que deixou tipsters de fora de proposito, registrado na propria evidence daquela feature - tipsterId era opcional em CreateBetRequest e nenhum consumidor o preenchia) - a decisao ficou obsoleta quando apps/web feat-008 (catalogos, ja done) ganhou uma aba dedicada de tipsters, sem que nenhuma sessao revisitasse o roteamento do Gateway. So veio a tona porque infra/feat-002 precisou criar um tipster de verdade via Gateway para montar o catalogo minimo de uma aposta de teste - apps/web feat-008 nao tem teste de integracao contra um Gateway real, so contra HttpClient mockado.",
+      "dependencies": [
+        "feat-001"
+      ],
+      "status": "done",
+      "plan_review": "2026-09-09, achado durante infra/feat-002 (nao um plan review dedicado - mudanca de 1 predicado de rota + 1 caso no teste parametrizado ja existente, mesmo padrao mecanico de feat-007, risco equivalente). Grounding: leitura direta de RouteConfig.java (confirmado, TipstersController de bets-service sem rota) e GatewayRoutingIntegrationTest.java (ja parametrizado por @ValueSource, so precisa do path novo na lista - nenhum filtro, nenhum mecanismo de autenticacao novo).",
+      "jira": "SV-274",
+      "subtasks": [
+        {
+          "id": "feat-008.1",
+          "name": "Rotear /api/v1/tipsters para bets-service + teste + CHANGELOG e verificacao final",
+          "status": "done",
+          "jira": "SV-275"
+        }
+      ],
+      "evidence": "Fechada em 2026-09-09. RouteConfig.betsServiceRoute ganhou o predicado path(\"/api/v1/tipsters/**\") no mesmo Bean das outras rotas de bets-service; GatewayRoutingIntegrationTest.shouldRoutePasetoAuthenticatedRequestToItsDownstreamService ganhou /api/v1/tipsters na lista de @ValueSource (mesmo teste generico das outras 4 rotas, nenhum teste novo necessario). Verificado ao vivo contra o Gateway real rodando localmente (nao so mvn verify): antes do fix, POST /api/v1/tipsters via Gateway devolvia 404 (whitelabel do Spring, nem chegava a bets-service); apos o fix e restart do processo, 201 com o tipster criado - usado de fato para montar o catalogo do cenario de infra/feat-002. docs/services/api-gateway.md atualizado no mesmo commit logico (tabela de roteamento + nota explicando por que a decisao de feat-007 ficou obsoleta). ./mvnw -q compile verde. ./init.sh do servico e da raiz a rodar antes do merge para develop."
     }
   ]
 }
