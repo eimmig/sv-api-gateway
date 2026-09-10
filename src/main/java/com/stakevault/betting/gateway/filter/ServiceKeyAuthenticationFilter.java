@@ -92,7 +92,9 @@ public class ServiceKeyAuthenticationFilter extends OncePerRequestFilter {
 			return;
 		}
 
-		chain.doFilter(new ResolvedIdentityRequestWrapper(request, link.userId(), link.tenantId()), response);
+		// No role concept on the Telegram path - no admin route reachable via the bot, so no
+		// X-User-Role is injected here (see ResolvedIdentityRequestWrapper).
+		chain.doFilter(new ResolvedIdentityRequestWrapper(request, link.userId(), link.tenantId(), null), response);
 	}
 
 	private boolean constantTimeEquals(String provided, String configured) {

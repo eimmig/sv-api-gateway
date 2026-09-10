@@ -1,4 +1,4 @@
 package com.stakevault.betting.gateway.filter;
 
-record PasetoClaims(String userId, String tenantId, long iat, long exp) {
+record PasetoClaims(String userId, String tenantId, String role, long iat, long exp) {
 }

@@ -105,6 +105,8 @@ class ServiceKeyAuthenticationFilterTest {
 		ResolvedIdentityRequestWrapper forwarded = (ResolvedIdentityRequestWrapper) chain.getRequest();
 		assertThat(forwarded.getHeader("X-User-Id")).isEqualTo("u1");
 		assertThat(forwarded.getHeader("X-Tenant-Id")).isEqualTo("acme");
+		// No role concept on this path (telegram-integration) - no admin route reachable via the bot.
+		assertThat(forwarded.getHeader("X-User-Role")).isNull();
 	}
 
 	@Test

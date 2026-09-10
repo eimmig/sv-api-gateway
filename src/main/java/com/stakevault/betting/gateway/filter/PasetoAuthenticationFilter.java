@@ -90,12 +90,14 @@ public class PasetoAuthenticationFilter extends OncePerRequestFilter {
 		}
 
 		if (claims.userId() == null || claims.userId().isBlank() || claims.tenantId() == null
-				|| claims.tenantId().isBlank() || claims.exp() <= Instant.now().getEpochSecond()) {
+				|| claims.tenantId().isBlank() || claims.role() == null || claims.role().isBlank()
+				|| claims.exp() <= Instant.now().getEpochSecond()) {
 			writeUnauthorized(request, response);
 			return;
 		}
 
-		chain.doFilter(new ResolvedIdentityRequestWrapper(request, claims.userId(), claims.tenantId()), response);
+		chain.doFilter(new ResolvedIdentityRequestWrapper(request, claims.userId(), claims.tenantId(), claims.role()),
+				response);
 	}
 
 	private void writeUnauthorized(HttpServletRequest request, HttpServletResponse response) throws IOException {
