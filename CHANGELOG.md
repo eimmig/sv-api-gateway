@@ -40,3 +40,6 @@ por serviço"). O "porquê" de cada mudança vive na issue e na mensagem de comm
 - [SV-283](https://stakevault.atlassian.net/browse/SV-283) - Dockerfile multi-stage + verificacao real do container contra a infra
 - [SV-313](https://stakevault.atlassian.net/browse/SV-313) - Extrair role do PASETO e injetar X-User-Role
 - [SV-314](https://stakevault.atlassian.net/browse/SV-314) - PasetoClaims/ResolvedIdentityRequestWrapper/PasetoAuthenticationFilter ganham role
+- [SV-322](https://stakevault.atlassian.net/browse/SV-322) - CI: build e push da imagem Docker pro GHCR
+- [SV-323](https://stakevault.atlassian.net/browse/SV-323) - Job build-and-push-image no ci.yml
+- [SV-324](https://stakevault.atlassian.net/browse/SV-324) - CHANGELOG e verificacao final
