@@ -252,3 +252,14 @@ SV-274), 2 PRs (#26 subtask->feature, #27 feature->develop), CI+SonarCloud verde
 
 Com isso, `feature_list.json` deste harness fica 100% `done` (`feat-001..008`) — nenhum trabalho
 pendente até surgir novo achado.
+
+## `feat-009` — Dockerfile para imagem de produção (2026-09-10)
+
+Achado real de `infra/feat-004` (migração para Kubernetes, `epic-010` da raiz): este serviço
+nunca teve `Dockerfile` próprio. Multi-stage idêntico ao padrão de `auth-service feat-011`
+(build `eclipse-temurin:25-jdk-alpine`, runtime `25-jre-alpine`, usuário não-root, porta 8080 —
+default do Spring Boot, nunca sobrescrita). Build real e execução real testados contra a infra,
+roteando para `auth-service`/`bets-service`/`stats-service` pelos nomes de host da rede:
+`/actuator/health` UP. Imagem usada de fato pelos manifests Kubernetes de `infra/feat-004`. 1
+subtask (SV-283, story SV-282), 2 PRs (#28 subtask->feature, #29 feature->develop), CI+SonarCloud
+verdes nos dois. Com isso, `feature_list.json` deste harness fica 100% `done` (`feat-001..009`).
