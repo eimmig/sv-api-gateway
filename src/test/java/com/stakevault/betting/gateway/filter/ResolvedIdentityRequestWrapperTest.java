@@ -15,7 +15,7 @@ class ResolvedIdentityRequestWrapperTest {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("X-User-Id", "client-supplied");
 
-		ResolvedIdentityRequestWrapper wrapper = new ResolvedIdentityRequestWrapper(request, "resolved-user", "resolved-tenant");
+		ResolvedIdentityRequestWrapper wrapper = new ResolvedIdentityRequestWrapper(request, "resolved-user", "resolved-tenant", "admin");
 
 		assertThat(wrapper.getHeader("X-User-Id")).isEqualTo("resolved-user");
 	}
@@ -24,7 +24,7 @@ class ResolvedIdentityRequestWrapperTest {
 	void shouldReturnResolvedTenantIdWhenOriginalHeaderAbsent() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 
-		ResolvedIdentityRequestWrapper wrapper = new ResolvedIdentityRequestWrapper(request, "resolved-user", "resolved-tenant");
+		ResolvedIdentityRequestWrapper wrapper = new ResolvedIdentityRequestWrapper(request, "resolved-user", "resolved-tenant", "admin");
 
 		assertThat(wrapper.getHeader("X-Tenant-Id")).isEqualTo("resolved-tenant");
 	}
@@ -34,7 +34,7 @@ class ResolvedIdentityRequestWrapperTest {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Accept-Language", "en-US");
 
-		ResolvedIdentityRequestWrapper wrapper = new ResolvedIdentityRequestWrapper(request, "resolved-user", "resolved-tenant");
+		ResolvedIdentityRequestWrapper wrapper = new ResolvedIdentityRequestWrapper(request, "resolved-user", "resolved-tenant", "admin");
 
 		assertThat(wrapper.getHeader("Accept-Language")).isEqualTo("en-US");
 	}
@@ -44,7 +44,7 @@ class ResolvedIdentityRequestWrapperTest {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("X-User-Id", "client-supplied");
 
-		ResolvedIdentityRequestWrapper wrapper = new ResolvedIdentityRequestWrapper(request, "resolved-user", "resolved-tenant");
+		ResolvedIdentityRequestWrapper wrapper = new ResolvedIdentityRequestWrapper(request, "resolved-user", "resolved-tenant", "admin");
 
 		assertThat(Collections.list(wrapper.getHeaders("X-User-Id"))).containsExactly("resolved-user");
 		List<String> names = Collections.list(wrapper.getHeaderNames());
@@ -56,11 +56,36 @@ class ResolvedIdentityRequestWrapperTest {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Bearer v4.local.something");
 
-		ResolvedIdentityRequestWrapper wrapper = new ResolvedIdentityRequestWrapper(request, "resolved-user", "resolved-tenant");
+		ResolvedIdentityRequestWrapper wrapper = new ResolvedIdentityRequestWrapper(request, "resolved-user", "resolved-tenant", "admin");
 
 		assertThat(wrapper.getHeader("Authorization")).isNull();
 		assertThat(Collections.list(wrapper.getHeaders("Authorization"))).isEmpty();
 		assertThat(Collections.list(wrapper.getHeaderNames())).doesNotContain("Authorization");
+	}
+
+	@Test
+	void shouldReturnResolvedRoleWhenPresent() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("X-User-Role", "client-supplied");
+
+		ResolvedIdentityRequestWrapper wrapper = new ResolvedIdentityRequestWrapper(request, "resolved-user", "resolved-tenant", "admin");
+
+		assertThat(wrapper.getHeader("X-User-Role")).isEqualTo("admin");
+		assertThat(Collections.list(wrapper.getHeaders("X-User-Role"))).containsExactly("admin");
+		assertThat(Collections.list(wrapper.getHeaderNames())).contains("X-User-Role");
+	}
+
+	// X-Service-Key path (telegram-integration) has no role concept - null must never surface as
+	// a present-but-empty header, since downstream services treat header absence as "not admin".
+	@Test
+	void shouldOmitRoleHeaderEntirelyWhenNull() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+
+		ResolvedIdentityRequestWrapper wrapper = new ResolvedIdentityRequestWrapper(request, "resolved-user", "resolved-tenant", null);
+
+		assertThat(wrapper.getHeader("X-User-Role")).isNull();
+		assertThat(Collections.list(wrapper.getHeaders("X-User-Role"))).isEmpty();
+		assertThat(Collections.list(wrapper.getHeaderNames())).doesNotContain("X-User-Role");
 	}
 
 	@Test
@@ -69,7 +94,7 @@ class ResolvedIdentityRequestWrapperTest {
 		request.addHeader("X-Service-Key", "shared-secret");
 		request.addHeader("X-Telegram-User-Id", "12345");
 
-		ResolvedIdentityRequestWrapper wrapper = new ResolvedIdentityRequestWrapper(request, "resolved-user", "resolved-tenant");
+		ResolvedIdentityRequestWrapper wrapper = new ResolvedIdentityRequestWrapper(request, "resolved-user", "resolved-tenant", "admin");
 
 		assertThat(wrapper.getHeader("X-Service-Key")).isNull();
 		assertThat(wrapper.getHeader("X-Telegram-User-Id")).isNull();

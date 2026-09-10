@@ -41,17 +41,21 @@ class PasetoAuthenticationFilterTest {
 	}
 
 	private static String validToken(String userId, String tenantId) {
+		return validToken(userId, tenantId, "member");
+	}
+
+	private static String validToken(String userId, String tenantId, String role) {
 		Instant now = Instant.now();
 		String json = """
-				{"userId":"%s","tenantId":"%s","iat":%d,"exp":%d}"""
-				.formatted(userId, tenantId, now.getEpochSecond(), now.plusSeconds(3600).getEpochSecond());
+				{"userId":"%s","tenantId":"%s","role":"%s","iat":%d,"exp":%d}"""
+				.formatted(userId, tenantId, role, now.getEpochSecond(), now.plusSeconds(3600).getEpochSecond());
 		return Paseto.encrypt(KEY, json, "");
 	}
 
 	private static String expiredToken(String userId, String tenantId) {
 		Instant now = Instant.now();
 		String json = """
-				{"userId":"%s","tenantId":"%s","iat":%d,"exp":%d}"""
+				{"userId":"%s","tenantId":"%s","role":"member","iat":%d,"exp":%d}"""
 				.formatted(userId, tenantId, now.minusSeconds(7200).getEpochSecond(), now.minusSeconds(3600).getEpochSecond());
 		return Paseto.encrypt(KEY, json, "");
 	}
@@ -59,7 +63,7 @@ class PasetoAuthenticationFilterTest {
 	private static String tokenWithMissingTenant(String userId) {
 		Instant now = Instant.now();
 		String json = """
-				{"userId":"%s","iat":%d,"exp":%d}"""
+				{"userId":"%s","role":"member","iat":%d,"exp":%d}"""
 				.formatted(userId, now.getEpochSecond(), now.plusSeconds(3600).getEpochSecond());
 		return Paseto.encrypt(KEY, json, "");
 	}
@@ -67,15 +71,23 @@ class PasetoAuthenticationFilterTest {
 	private static String tokenWithMissingUserId(String tenantId) {
 		Instant now = Instant.now();
 		String json = """
-				{"tenantId":"%s","iat":%d,"exp":%d}"""
+				{"tenantId":"%s","role":"member","iat":%d,"exp":%d}"""
 				.formatted(tenantId, now.getEpochSecond(), now.plusSeconds(3600).getEpochSecond());
+		return Paseto.encrypt(KEY, json, "");
+	}
+
+	private static String tokenWithMissingRole(String userId, String tenantId) {
+		Instant now = Instant.now();
+		String json = """
+				{"userId":"%s","tenantId":"%s","iat":%d,"exp":%d}"""
+				.formatted(userId, tenantId, now.getEpochSecond(), now.plusSeconds(3600).getEpochSecond());
 		return Paseto.encrypt(KEY, json, "");
 	}
 
 	private static String tokenSignedWithDifferentKey(String userId, String tenantId) {
 		Instant now = Instant.now();
 		String json = """
-				{"userId":"%s","tenantId":"%s","iat":%d,"exp":%d}"""
+				{"userId":"%s","tenantId":"%s","role":"member","iat":%d,"exp":%d}"""
 				.formatted(userId, tenantId, now.getEpochSecond(), now.plusSeconds(3600).getEpochSecond());
 		SecretKey otherKey = new SecretKey(HexFormat.of().parseHex(OTHER_KEY_HEX), Version.V4);
 		return Paseto.encrypt(otherKey, json, "");
@@ -85,7 +97,7 @@ class PasetoAuthenticationFilterTest {
 	void shouldPassThroughAndInjectResolvedIdentityForValidToken() throws Exception {
 		String userId = UUID.randomUUID().toString();
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader("Authorization", "Bearer " + validToken(userId, "acme"));
+		request.addHeader("Authorization", "Bearer " + validToken(userId, "acme", "admin"));
 		request.addHeader("X-User-Id", "attacker-supplied");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
@@ -96,7 +108,22 @@ class PasetoAuthenticationFilterTest {
 		ResolvedIdentityRequestWrapper forwarded = (ResolvedIdentityRequestWrapper) chain.getRequest();
 		assertThat(forwarded.getHeader("X-User-Id")).isEqualTo(userId);
 		assertThat(forwarded.getHeader("X-Tenant-Id")).isEqualTo("acme");
+		assertThat(forwarded.getHeader("X-User-Role")).isEqualTo("admin");
 		assertThat(forwarded.getHeader("Authorization")).isNull();
+	}
+
+	@Test
+	void shouldReturn401WhenRoleClaimIsMissing() throws Exception {
+		when(localeResolver.resolveLocale(any())).thenReturn(Locale.forLanguageTag("pt-BR"));
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization", "Bearer " + tokenWithMissingRole(UUID.randomUUID().toString(), "acme"));
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockFilterChain chain = new MockFilterChain();
+
+		filter.doFilter(request, response, chain);
+
+		assertThat(response.getStatus()).isEqualTo(401);
+		assertThat(chain.getRequest()).isNull();
 	}
 
 	@Test

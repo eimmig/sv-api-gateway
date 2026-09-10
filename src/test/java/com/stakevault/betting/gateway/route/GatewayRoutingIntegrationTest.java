@@ -100,7 +100,7 @@ class GatewayRoutingIntegrationTest {
 	private static String validToken(String userId, String tenantId) {
 		Instant now = Instant.now();
 		String json = """
-				{"userId":"%s","tenantId":"%s","iat":%d,"exp":%d}"""
+				{"userId":"%s","tenantId":"%s","role":"member","iat":%d,"exp":%d}"""
 				.formatted(userId, tenantId, now.getEpochSecond(), now.plusSeconds(3600).getEpochSecond());
 		return Paseto.encrypt(KEY, json, "");
 	}
