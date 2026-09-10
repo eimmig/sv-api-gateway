@@ -150,7 +150,8 @@ class GatewayRoutingIntegrationTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = { "/api/v1/statistics", "/api/v1/sports", "/api/v1/leagues", "/api/v1/markets" })
+	@ValueSource(strings = { "/api/v1/statistics", "/api/v1/sports", "/api/v1/leagues", "/api/v1/markets",
+			"/api/v1/tipsters" })
 	void shouldRoutePasetoAuthenticatedRequestToItsDownstreamService(String path) throws Exception {
 		String userId = UUID.randomUUID().toString();
 		HttpRequest request = HttpRequest.newBuilder(URI.create("http://localhost:" + port + path))

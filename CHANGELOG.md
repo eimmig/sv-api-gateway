@@ -34,3 +34,5 @@ por serviço"). O "porquê" de cada mudança vive na issue e na mensagem de comm
 - [SV-180](https://stakevault.atlassian.net/browse/SV-180) - Fechamento formal - description corrigida e verificacao final
 - [SV-195](https://stakevault.atlassian.net/browse/SV-195) - Rotear catalogos (/api/v1/sports, /leagues, /markets) para bets-service
 - [SV-196](https://stakevault.atlassian.net/browse/SV-196) - Rotear /sports, /leagues, /markets para bets-service + testes + CHANGELOG e verificacao final
+- [SV-274](https://stakevault.atlassian.net/browse/SV-274) - Rotear /api/v1/tipsters para bets-service
+- [SV-275](https://stakevault.atlassian.net/browse/SV-275) - Rotear /api/v1/tipsters para bets-service + teste + CHANGELOG e verificacao final
