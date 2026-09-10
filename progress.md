@@ -233,3 +233,22 @@ redescobrir a regressão de `feat-002`. Ao escrever literal de path/delimitador 
 que o gate `feature -> develop` do SonarCloud (`java:S1075`) reprove até um `char` de barra
 concatenado — preferir comparação por `charAt`/`regionMatches` a concatenação de string desde o
 início, nesses casos.
+
+## `feat-008` — rotear `/api/v1/tipsters` (2026-09-10)
+
+Achado real de `infra/feat-002` (teste de resiliência de `epic-007`, outro repositório): o
+Gateway nunca roteava `/api/v1/tipsters/**`, apesar de `TipstersController` existir em
+`bets-service` desde a `feat-002` daquele serviço. Não era bug de `feat-007` — aquela feature
+deixou a rota de fora *de propósito*, porque `tipsterId` era opcional em `CreateBetRequest` e
+nenhum consumidor o preenchia. A decisão ficou obsoleta quando `apps/web feat-008` (catálogos)
+ganhou uma aba dedicada de tipsters, sem que ninguém revisitasse o roteamento — `apps/web` só
+testa contra `HttpClient` mockado, nunca contra este Gateway de verdade, então não pegou.
+
+Fix mecânico, mesmo padrão de `feat-007`: 1 predicado novo em `RouteConfig.betsServiceRoute`, 1
+path novo no `@ValueSource` já parametrizado de `GatewayRoutingIntegrationTest`. Verificado ao
+vivo contra o Gateway rodando localmente (404 antes, 201 depois) — não só por `mvn verify`.
+`docs/services/api-gateway.md` atualizado no mesmo commit lógico. 1 subtask (SV-275, story
+SV-274), 2 PRs (#26 subtask->feature, #27 feature->develop), CI+SonarCloud verdes nos dois.
+
+Com isso, `feature_list.json` deste harness fica 100% `done` (`feat-001..008`) — nenhum trabalho
+pendente até surgir novo achado.

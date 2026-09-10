@@ -2,64 +2,47 @@
 
 ## Current Objective
 
-- Goal: `epic-008` (api-gateway) — `feat-001`, `feat-002`, `feat-003`, `feat-004`, `feat-006`
-  `done`. Only `feat-005` (CI closure) remains.
-- Branch / commit: `develop` @ `53c2326` (merge of `feature/SV-176`).
+- `epic-008` (raiz) `done` — `feat-001..007` `done`. `feat-008` (rotear `/api/v1/tipsters`)
+  acrescentada e fechada nesta sessão. Nenhuma feature pendente neste harness.
+- Branch / commit: `develop` @ merge de `feature/SV-274` (PR #27).
 
-## Completed This Session
+## Completed This Session (2026-09-10)
 
-- [x] `feat-006` (global `X-Correlation-Id` filter) fully implemented, reviewed, and merged — see
-      `progress.md` for the full breakdown (2 subtasks, SV-177/178, story SV-176).
-- [x] Real coverage gap found and closed during Delivery Review: the 2 new integration tests only
-      exercised the public `/api/v1/auth/login` route, never proving that
-      `CorrelationIdRequestWrapper` composes correctly when nested with
-      `ResolvedIdentityRequestWrapper` (PASETO/`X-Service-Key` paths) — fixed by extending the 2
-      existing authenticated-route integration tests instead of adding new ones.
-- [x] Real scope-boundary correction during Plan Review: original plan proposed adding a new
-      feature to `services/bets-service/feature_list.json` flagging that `BetEventEnvelope` still
-      doesn't consume the (now real) header — corrected to only touch the vault
-      (`docs/services/bets-service.md`), per `CLAUDE.md`'s "stay in scope" rule (harness files of
-      another service are not fair game, only vault notes).
+- [x] **`feat-008` fechada** (story SV-274, subtask SV-275, PR #26 subtask->feature + PR #27
+      feature->develop, CI+SonarCloud verdes): `RouteConfig.betsServiceRoute` ganhou o predicado
+      `/api/v1/tipsters/**`. Achado real, não planejado — encontrado por `infra/feat-002` (teste
+      de resiliência de `epic-007`) ao montar um catálogo de teste: `POST /api/v1/tipsters`
+      devolvia 404 pelo Gateway real, apesar de `bets-service` ter `TipstersController` desde a
+      `feat-002` daquele serviço. `feat-007` deste serviço tinha deixado a rota de fora *de
+      propósito* na época (nenhum consumidor preenchia `tipsterId`) — decisão que ficou obsoleta
+      quando `apps/web feat-008` (catálogos) ganhou a aba de tipsters, sem que ninguém revisitasse
+      o roteamento. `apps/web feat-008` não pegou isso porque seus testes só exercitam
+      `HttpClient` mockado, nunca um Gateway real.
+- [x] `docs/services/api-gateway.md` atualizado no mesmo commit lógico (tabela de roteamento +
+      explicação de por que a decisão anterior ficou obsoleta).
 
 ## Verification Evidence
 
 | Check | Command | Result | Notes |
 |---|---|---|---|
-| Build/test | `./mvnw -q -B verify` | 47 tests, 0 failures | JaCoCo 80% gate real |
-| Local harness | `./init.sh` | pass | service + root |
-| CI (subtask gates) | GitHub Actions | pass | 2 PRs (#19, #20) |
-| CI (full gate) | GitHub Actions + SonarCloud | pass | PR #21, no new findings |
-| Delivery Reviewer | review-suite skill | PASS | 1 real finding fixed before close (wrapper composition coverage) |
-| Test Suite Auditor | codebase-audit-suite skill | PASS | |
-
-## Decisions Made
-
-- `@Order(Ordered.HIGHEST_PRECEDENCE)` only on `CorrelationIdFilter` — sufficient since
-  `PasetoAuthenticationFilter`/`ServiceKeyAuthenticationFilter` have no explicit `@Order` and
-  default to `LOWEST_PRECEDENCE`.
-- Echo `X-Correlation-Id` on the response too — my own addition beyond the documented contract
-  (request/MDC/downstream only), standard gateway practice, doesn't contradict anything.
-- Left `services/bets-service` untouched — the gap (envelope doesn't consume the header yet) is
-  flagged only in the vault (`docs/services/bets-service.md`), not as a new bets-service backlog
-  entry, since it isn't a blocker for this feature and `epic-003` is already `done`.
+| Build/test | `./mvnw -q verify` | pass | JaCoCo gate incluso |
+| CI (subtask gate) | GitHub Actions | pass | PR #26 |
+| CI (full gate) | GitHub Actions + SonarCloud | pass | PR #27 |
+| Verificação ao vivo | Gateway real rodando localmente | 404 antes / 201 depois | usado de fato por `infra/feat-002` |
 
 ## Blockers / Risks
 
-- None open.
+- Nenhum.
 
 ## Next Session Startup
 
-1. Read `../../CLAUDE.md`, this service's `CLAUDE.md`.
-2. Read `feature_list.json` — only `feat-005` (CI pipeline closure) remains, dependencies already
-   met (`feat-001` done). Likely a formal-closure feature (pipeline already runs for real since
-   `epic-009`/`feat-001`), similar to how `auth-service feat-007` closed — verify the description
-   still matches the real `ci.yml` before writing a new plan.
-3. Run `./init.sh` (should pass).
-4. `Plan Reviewer` before touching anything.
-5. Closing `feat-005` closes `epic-008` (raiz) — update `../../feature_list.json` in the same
-   session.
+1. Ler `../../CLAUDE.md` e o `CLAUDE.md` deste serviço.
+2. `feature_list.json` deste harness: todas as features `done` (`feat-001..008`). Nenhum trabalho
+   pendente aqui até surgir novo achado cross-service ou nova feature.
+3. Rodar `./init.sh` (deve passar).
 
 ## Recommended Next Step
 
-- `feat-005` (CI pipeline formal closure) is the only remaining feature — closing it closes
-  `epic-008` entirely, unblocking `epic-005` (telegram-integration) and `epic-006` (web).
+- Nenhum próximo passo pendente neste harness. Próximo trabalho do projeto está em
+  `infra/feat-004` (Kubernetes) ou em qualquer gap ainda `not-started` de `apps/web`
+  (`feat-009`/`feat-010`).
