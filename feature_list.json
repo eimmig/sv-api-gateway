@@ -257,7 +257,7 @@
       "dependencies": [
         "feat-002"
       ],
-      "status": "in-progress",
+      "status": "done",
       "plan_review": "2026-09-10 - instrucao direta e inequivoca do usuario (AskUserQuestion, mesma decisao que originou auth-service feat-012), nao uma decisao de design em aberto. Risco tecnico baixo: extensao mecanica do mesmo padrao ja usado pra userId/tenantId (PasetoClaims, ResolvedIdentityRequestWrapper, PasetoAuthenticationFilter, ja lidos antes de codificar). Unica decisao de design real, resolvida durante a implementacao (nao pelo usuario, risco baixo o suficiente pra nao justificar pausa): ResolvedIdentityRequestWrapper e compartilhado pelos 2 filtros de autenticacao (PasetoAuthenticationFilter e ServiceKeyAuthenticationFilter) - o segundo (caminho telegram) nao tem role, entao o construtor recebe role nullable em vez de 2 construtores separados, e getHeader/getHeaders/getHeaderNames tratam null como header ausente (nao string vazia), sem quebrar o contrato existente dos outros 2 headers.",
       "jira": "SV-313",
       "subtasks": [
