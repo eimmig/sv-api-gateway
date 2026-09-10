@@ -253,6 +253,33 @@ SV-274), 2 PRs (#26 subtask->feature, #27 feature->develop), CI+SonarCloud verde
 Com isso, `feature_list.json` deste harness fica 100% `done` (`feat-001..008`) — nenhum trabalho
 pendente até surgir novo achado.
 
+## `feat-010` — Extrair role do PASETO, injetar X-User-Role (2026-09-10, mesmo dia)
+
+Feature irmã de `auth-service feat-012` (claim `role` no token). Achado real de `bets-service
+epic-013` (`PATCH /api/v1/settings`, restrito a `role=admin`): `bets-service` não tem tabela
+`USER` pra resolver role localmente. Decisão do usuário via `AskUserQuestion` (`docs/DECISIONS-
+LOG.md` raiz, "Claim role no PASETO"): estender o mesmo padrão de confiança já usado pra
+`userId`/`tenantId` — token ganha claim `role`, este serviço extrai e injeta um terceiro header,
+`X-User-Role`.
+
+`PasetoClaims` ganha campo `role`; `PasetoAuthenticationFilter` valida presente/não-vazio (mesmo
+critério de `userId`/`tenantId`, `401` se ausente) e passa pro wrapper. `ResolvedIdentityRequest-
+Wrapper` (compartilhado pelos 2 filtros de autenticação) ganha parâmetro `role` **nullable** em
+vez de 2 construtores separados — o caminho `X-Service-Key` (`telegram-integration`) não tem
+conceito de role (nenhuma rota admin alcançável via bot), passa `null` explicitamente;
+`getHeader`/`getHeaders`/`getHeaderNames` tratam `null` como header **ausente** (não string
+vazia), sem quebrar o contrato existente dos outros 2 headers. Achado real durante a
+implementação: `GatewayRoutingIntegrationTest` e o próprio `PasetoAuthenticationFilterTest`
+construíam tokens PASETO brutos sem o novo campo — 7 testes começaram a falhar (401 inesperado)
+até os helpers de token serem atualizados para incluir `role`.
+
+1 subtask (SV-314, story SV-313), 2 PRs (#30 subtask→feature, #31 feature→develop), CI+SonarCloud
+verdes nos dois (segunda tentativa do PR #30 — a primeira falhou por erro de rede do `gh pr
+merge`, não um problema de código, resolvido só reexecutando o merge). `mvn verify` verde (53
+testes). Delivery Reviewer/Test Suite Auditor/Persistence Auditor: self-review proporcional ao
+escopo (mudança mecânica, sem persistência tocada). Libera `bets-service epic-013` (`PATCH
+/api/v1/settings`).
+
 ## `feat-009` — Dockerfile para imagem de produção (2026-09-10)
 
 Achado real de `infra/feat-004` (migração para Kubernetes, `epic-010` da raiz): este serviço
