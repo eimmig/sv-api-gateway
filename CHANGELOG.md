@@ -38,3 +38,5 @@ por serviço"). O "porquê" de cada mudança vive na issue e na mensagem de comm
 - [SV-275](https://stakevault.atlassian.net/browse/SV-275) - Rotear /api/v1/tipsters para bets-service + teste + CHANGELOG e verificacao final
 - [SV-282](https://stakevault.atlassian.net/browse/SV-282) - Dockerfile para imagem de producao
 - [SV-283](https://stakevault.atlassian.net/browse/SV-283) - Dockerfile multi-stage + verificacao real do container contra a infra
+- [SV-313](https://stakevault.atlassian.net/browse/SV-313) - Extrair role do PASETO e injetar X-User-Role
+- [SV-314](https://stakevault.atlassian.net/browse/SV-314) - PasetoClaims/ResolvedIdentityRequestWrapper/PasetoAuthenticationFilter ganham role

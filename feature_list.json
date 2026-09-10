@@ -249,6 +249,26 @@
         }
       ],
       "evidence": "Fechada em 2026-09-10. Dockerfile multi-stage identico ao padrao de auth-service feat-011 (build eclipse-temurin:25-jdk-alpine, runtime 25-jre-alpine, usuario nao-root, porta 8080) + .dockerignore. Build real e execucao real testados contra a infra (roteando para auth-service/bets-service/stats-service pelos nomes de host da rede): GET /actuator/health respondeu 200. Imagem usada de fato por infra/feat-004 para os manifests Kubernetes."
+    },
+    {
+      "id": "feat-010",
+      "name": "Extrair role do PASETO e injetar X-User-Role",
+      "description": "Feature irma de auth-service feat-012 (claim role no token). Achado real durante bets-service epic-013 (PATCH /api/v1/settings, restrito a role=admin): bets-service nao tem tabela USER pra resolver role localmente. Decisao do usuario via AskUserQuestion (docs/DECISIONS-LOG.md raiz, 'Claim role no PASETO'): api-gateway extrai o claim role (ja emitido por auth-service feat-012) e injeta um terceiro header confiavel, X-User-Role, mesmo padrao de X-User-Id/X-Tenant-Id. Caminho X-Service-Key (telegram-integration) nao tem conceito de role - nao ha rota admin alcancavel via bot - injeta null (header ausente a jusante, tratado como nao-admin).",
+      "dependencies": [
+        "feat-002"
+      ],
+      "status": "in-progress",
+      "plan_review": "2026-09-10 - instrucao direta e inequivoca do usuario (AskUserQuestion, mesma decisao que originou auth-service feat-012), nao uma decisao de design em aberto. Risco tecnico baixo: extensao mecanica do mesmo padrao ja usado pra userId/tenantId (PasetoClaims, ResolvedIdentityRequestWrapper, PasetoAuthenticationFilter, ja lidos antes de codificar). Unica decisao de design real, resolvida durante a implementacao (nao pelo usuario, risco baixo o suficiente pra nao justificar pausa): ResolvedIdentityRequestWrapper e compartilhado pelos 2 filtros de autenticacao (PasetoAuthenticationFilter e ServiceKeyAuthenticationFilter) - o segundo (caminho telegram) nao tem role, entao o construtor recebe role nullable em vez de 2 construtores separados, e getHeader/getHeaders/getHeaderNames tratam null como header ausente (nao string vazia), sem quebrar o contrato existente dos outros 2 headers.",
+      "jira": "SV-313",
+      "subtasks": [
+        {
+          "id": "feat-010.1",
+          "name": "PasetoClaims/ResolvedIdentityRequestWrapper/PasetoAuthenticationFilter ganham role",
+          "status": "done",
+          "jira": "SV-314"
+        }
+      ],
+      "evidence": "Fechada em 2026-09-10. PasetoClaims ganha campo role; PasetoAuthenticationFilter valida role presente/nao-vazio (mesmo criterio de userId/tenantId, 401 se ausente) e passa pro wrapper; ResolvedIdentityRequestWrapper ganha ROLE_HEADER (X-User-Role) + parametro role nullable no construtor - getHeader/getHeaders retornam ausente (nao string vazia) quando null, getHeaderNames so anuncia o header quando role != null. ServiceKeyAuthenticationFilter (caminho telegram) passa null explicitamente, com comentario do racional. Testes: PasetoAuthenticationFilterTest (token sem role = 401, token valido injeta X-User-Role), ResolvedIdentityRequestWrapperTest (role presente e role null - null nunca aparece em getHeaderNames), ServiceKeyAuthenticationFilterTest (X-User-Role ausente no caminho telegram), GatewayRoutingIntegrationTest (helper de token atualizado pra incluir role, senao os testes de roteamento comecariam a falhar com 401). mvn verify verde (53 testes). Libera bets-service epic-013 (PATCH /api/v1/settings)."
     }
   ]
 }
