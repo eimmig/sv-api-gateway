@@ -104,6 +104,14 @@ tem implementação real.
   ganhou uma segunda exclusão (`/api/v1/auth/login`, além de `/actuator/**`) — qualquer rota
   pública nova do Gateway segue o mesmo padrão, adicionada à mesma checagem, nunca via
   configuração externa enquanto houver só essa exceção.
+- **CORS (`feat-012`, achado real de 2026-09-11)**: `CorsConfig` registra `CorsFilter` (biblioteca
+  do Spring) via `FilterRegistrationBean` com `.setOrder(Ordered.HIGHEST_PRECEDENCE)` **explícito**
+  — `@Order` direto no método `@Bean` **não** ordena o registro do Filter no Spring Boot (gotcha
+  real, ver `../../docs/CONVENTIONS.md` seção "Backend Java"), e sem rodar antes de
+  `PasetoAuthenticationFilter`/`ServiceKeyAuthenticationFilter` o preflight `OPTIONS` do navegador
+  toma `401` antes do `CorsFilter` responder. Origem(ns) via `CORS_ALLOWED_ORIGINS`
+  (`../../docs/OBSERVABILITY-AND-CONFIG.md`), sem `allowCredentials` (token vai em `Authorization`,
+  nunca cookie).
 - **CI/CD (`feat-005`)**: pipeline em `.github/workflows/ci.yml`, **dentro deste repositório**
   (este serviço é seu próprio repositório Git, não um monorepo — ver
   `../../docs/DECISIONS-LOG.md` "Topologia") — changelog, i18n, build, testes, SonarCloud.
