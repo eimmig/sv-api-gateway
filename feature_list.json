@@ -282,7 +282,7 @@
       "dependencies": [
         "feat-009"
       ],
-      "status": "in-progress",
+      "status": "done",
       "plan_review": "2026-09-10, Plan Reviewer (review-suite:ln-11-plan-reviewer) - READY WITH CONCERNS. Achados: MAJOR - packages: write no permissions do job so e concedido se o repositorio tiver 'Workflow permissions' = Read and write em Settings > Actions > General (default de repositorio novo costuma vir restrito a leitura, e nesse caso o job-level permissions e limitado silenciosamente, push falha com 403 em vez de erro de sintaxe) - verificar/configurar antes do primeiro push em main. MINOR (confirmado contra a documentacao oficial do docker/build-push-action) - nao obrigatorio mas recomendado adicionar docker/setup-buildx-action antes do build, incluido no plano corrigido. Escopo confirmado: PAT/imagePullSecrets do cluster de deploy fica fora desta feature.",
       "jira": "SV-322",
       "subtasks": [
@@ -331,7 +331,7 @@
           "jira": "SV-334"
         }
       ],
-      "evidence": ""
+      "evidence": "Fechada em 2026-09-10. Job build-and-push-image no ci.yml (docker/setup-buildx-action + docker/login-action + docker/build-push-action, tags <sha>/latest, needs: pipeline, if restrito a push em main) publicando de verdade em ghcr.io/eimmig/sv-api-gateway - confirmado via log real do job (containerimage.digest: sha256:7c0bd1a...). 3 achados reais so descobertos verificando ponta a ponta contra o GitHub de verdade (feat-011.3): actions de terceiro pinadas por SHA completo (SonarCloud S7637, risco de supply-chain) e guard de sonar.qualitygate.wait ampliado de 'push para develop' pra qualquer push direto (primeira analise de uma branch longa sem leak period faz a API devolver status NONE, tratado como reprovado pelo plugin). Delivery Reviewer: CONCERNS -> PASS depois de confirmado o push real (unico ponto em aberto era exatamente essa prova). Workflow permissions do repositorio (Settings > Actions > General) confirmado 'Read and write'. ./init.sh do servico e da raiz verdes. docs/CI-CD.md atualizado com os 2 achados (SHA pin, guard de qualitygate ampliado)."
     }
   ]
 }
