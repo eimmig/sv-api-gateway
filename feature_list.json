@@ -316,6 +316,19 @@
           "owner": "agente",
           "status": "done",
           "jira": "SV-324"
+        },
+        {
+          "id": "feat-011.3",
+          "name": "Corrigir SHA pin (S7637) e guard de qualitygate.wait achados na verificacao",
+          "detail": "2 achados reais descobertos so ao verificar de ponta a ponta contra o GitHub de verdade (nao previstos no Plan Review original): SonarCloud reprovou o quality gate por actions de terceiro pinadas por tag mutavel (@v3/@v6, regra githubactions:S7637 - risco de supply-chain); e o guard que pula sonar.qualitygate.wait em push direto cobria so ref_name == develop, mas a mesma causa raiz (primeira analise de uma branch longa sem leak period, API devolve status NONE tratado como reprovado) tambem acontece na primeira analise de main.",
+          "checklist": [
+            "3 actions (setup-buildx-action/login-action/build-push-action) pinadas por SHA completo do commit, versao em comentario",
+            "Guard do passo 5/6 ampliado de 'push para develop' para qualquer push direto (github.event_name == 'push')"
+          ],
+          "validation": "SonarCloud Code Analysis verde no PR develop->main; push real em main sem reprovar o quality gate.",
+          "owner": "agente",
+          "status": "done",
+          "jira": "SV-334"
         }
       ],
       "evidence": ""

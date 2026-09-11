@@ -43,3 +43,4 @@ por serviço"). O "porquê" de cada mudança vive na issue e na mensagem de comm
 - [SV-322](https://stakevault.atlassian.net/browse/SV-322) - CI: build e push da imagem Docker pro GHCR
 - [SV-323](https://stakevault.atlassian.net/browse/SV-323) - Job build-and-push-image no ci.yml
 - [SV-324](https://stakevault.atlassian.net/browse/SV-324) - CHANGELOG e verificacao final
+- [SV-334](https://stakevault.atlassian.net/browse/SV-334) - Corrigir SHA pin (S7637) e guard de qualitygate.wait achados na verificacao
