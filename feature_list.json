@@ -347,7 +347,7 @@
         {
           "id": "feat-012.1",
           "name": "CorsConfig (FilterRegistrationBean ordenado) + testes reais de preflight/allow-origin + CHANGELOG + vault + verificacao final",
-          "status": "in-progress",
+          "status": "done",
           "jira": "SV-393"
         }
       ],
