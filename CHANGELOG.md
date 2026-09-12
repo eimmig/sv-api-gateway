@@ -44,3 +44,5 @@ por serviço"). O "porquê" de cada mudança vive na issue e na mensagem de comm
 - [SV-323](https://stakevault.atlassian.net/browse/SV-323) - Job build-and-push-image no ci.yml
 - [SV-324](https://stakevault.atlassian.net/browse/SV-324) - CHANGELOG e verificacao final
 - [SV-334](https://stakevault.atlassian.net/browse/SV-334) - Corrigir SHA pin (S7637) e guard de qualitygate.wait achados na verificacao
+- [SV-392](https://stakevault.atlassian.net/browse/SV-392) - Habilitar CORS para chamadas do web
+- [SV-393](https://stakevault.atlassian.net/browse/SV-393) - CorsConfig (FilterRegistrationBean ordenado) + testes reais de preflight/allow-origin + CHANGELOG + vault + verificacao final
