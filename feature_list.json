@@ -443,7 +443,7 @@
       "dependencies": [
         "feat-003"
       ],
-      "status": "in-progress",
+      "status": "done",
       "plan_review": "Plan Reviewer (2026-09-15): READY. Mudanca mecanica identica a 3 precedentes ja fechados neste mesmo arquivo (feat-007 sports/leagues/markets, feat-008 tipsters, feat-013 bankroll/settings): adicionar path(\"/api/v1/teams/**\") ao betsServiceRoute existente em RouteConfig.java (nenhum filtro novo - identidade ja injetada pelo filtro global de todas as rotas). Confirmado contra bets-service: TeamsController.java tem @RequestMapping(\"/api/v1/teams\") com POST (CreateTeamRequest) e GET paginado, exatamente a forma dos outros 4 catalogos ja roteados. GatewayRoutingIntegrationTest.shouldRoutePasetoAuthenticatedRequestToItsDownstreamService ja e parametrizado por @ValueSource - so adicionar \"/api/v1/teams\" a lista existente cobre o caso novo sem escrever teste do zero. Sem BLOCKER.",
       "jira": "SV-441",
       "subtasks": [
@@ -454,7 +454,7 @@
           "jira": "SV-442"
         }
       ],
-      "evidence": ""
+      "evidence": "Fechada em 2026-09-15 (story SV-441, subtask SV-442, PRs #45/#46, CI+SonarCloud verdes, merge feature/SV-441 -> develop). Mudanca mecanica identica aos 3 precedentes ja fechados neste arquivo (feat-007 sports/leagues/markets, feat-008 tipsters, feat-013 bankroll/settings): path(\"/api/v1/teams/**\") acrescentado ao betsServiceRoute, sem filtro novo. GatewayRoutingIntegrationTest estendido (parametrizado, so um valor a mais na lista). Delivery Reviewer: PASS (revisao condensada, sem achado). ./init.sh verde. docs/services/api-gateway.md atualizado no mesmo commit logico (tabela de roteamento + nota do gap ja documentada em bets-service feat-017, agora fechada). Desbloqueia apps/web feat-021 (cadastro de time) - o catalogo TEAM de bets-service agora e alcancavel atraves do unico ponto de entrada HTTP publico."
     }
   ]
 }
