@@ -450,7 +450,7 @@
         {
           "id": "feat-015.1",
           "name": "Rota /api/v1/teams no RouteConfig + teste",
-          "status": "in-progress",
+          "status": "done",
           "jira": "SV-442"
         }
       ],
