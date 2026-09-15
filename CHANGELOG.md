@@ -50,3 +50,6 @@ por serviço"). O "porquê" de cada mudança vive na issue e na mensagem de comm
 - [SV-395](https://stakevault.atlassian.net/browse/SV-395) - Adicionar rotas de bankroll e settings
 - [SV-396](https://stakevault.atlassian.net/browse/SV-396) - Testar fluxo pelo Gateway
 - [SV-397](https://stakevault.atlassian.net/browse/SV-397) - CHANGELOG e verificacao final
+- [SV-429](https://stakevault.atlassian.net/browse/SV-429) - CD: job de deploy automatico (kubectl rollout restart) no ci.yml
+- [SV-430](https://stakevault.atlassian.net/browse/SV-430) - Job deploy no ci.yml
+- [SV-431](https://stakevault.atlassian.net/browse/SV-431) - CHANGELOG e verificacao final
