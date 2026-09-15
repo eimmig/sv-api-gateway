@@ -361,9 +361,9 @@
         "feat-003",
         "feat-010"
       ],
-      "status": "not-started",
-      "plan_review": "",
-      "jira": "",
+      "status": "in-progress",
+      "plan_review": "Plan Reviewer 2026-09-15: READY WITH CONCERNS. Evidencia: RouteConfig.java (betsServiceRoute) so precisa de 2 clausulas path() novas (.or(path(\"/api/v1/bankroll/**\")).or(path(\"/api/v1/settings/**\"))), mesmo padrao de feat-007/008 (sports/leagues/markets/tipsters); X-User-Id/X-Tenant-Id/X-User-Role ja sao injetados por filtro global (ResolvedIdentityRequestWrapper), nao por rota - nenhuma mudanca de filtro necessaria; PATCH e encaminhado pelo mesmo http() sem rota dedicada por metodo. Unico amendment: GatewayRoutingIntegrationTest ja tem @ParameterizedTest @ValueSource cobrindo /sports,/leagues,/markets,/tipsters,/statistics (linha 152-154) - subtask feat-013.2 deve ESTENDER esse @ValueSource com /api/v1/bankroll e /api/v1/settings em vez de escrever teste novo separado, e adicionar caso dedicado pra PATCH /api/v1/settings (metodo diferente dos demais, que sao todos GET). Risco residual aceito: nao ha teste real contra bets-service rodando (rota mockada), suficiente pro escopo de roteamento puro.",
+      "jira": "SV-394",
       "subtasks": [
         {
           "id": "feat-013.1",
@@ -376,22 +376,22 @@
           ],
           "validation": "Testes de rota confirmam encaminhamento e preservacao dos headers de identidade/tenant.",
           "owner": "agente",
-          "status": "not-started",
-          "jira": ""
+          "status": "done",
+          "jira": "SV-395"
         },
         {
           "id": "feat-013.2",
           "name": "Testar fluxo pelo Gateway",
-          "detail": "Provar que dashboard e relatorio conseguem consultar bankroll e settings pela URL publica do Gateway.",
+          "detail": "Provar que dashboard e relatorio conseguem consultar bankroll e settings pela URL publica do Gateway. Estender o @ParameterizedTest @ValueSource existente em GatewayRoutingIntegrationTest (linha ~153, ja cobre /sports,/leagues,/markets,/tipsters,/statistics) com /api/v1/bankroll e /api/v1/settings, em vez de criar teste paralelo (achado do Plan Reviewer).",
           "checklist": [
-            "GET bankroll com e sem at e GET settings respondem pelo Gateway.",
-            "PATCH settings preserva a restricao de admin do bets-service.",
+            "GET bankroll com e sem at e GET settings respondem pelo Gateway (cobertos pelo @ValueSource estendido).",
+            "PATCH settings preserva a restricao de admin do bets-service - caso dedicado, metodo diferente dos demais do @ValueSource.",
             "Rota desconhecida nao ganha encaminhamento acidental."
           ],
           "validation": "Testes de integracao e ./init.sh do Gateway verdes.",
           "owner": "agente",
-          "status": "not-started",
-          "jira": ""
+          "status": "done",
+          "jira": "SV-396"
         },
         {
           "id": "feat-013.3",
@@ -404,8 +404,8 @@
           ],
           "validation": "Pipeline e verificacao local verdes, evidence preenchida.",
           "owner": "agente",
-          "status": "not-started",
-          "jira": ""
+          "status": "done",
+          "jira": "SV-397"
         }
       ],
       "evidence": ""
