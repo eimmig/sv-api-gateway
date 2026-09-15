@@ -361,7 +361,7 @@
         "feat-003",
         "feat-010"
       ],
-      "status": "in-progress",
+      "status": "done",
       "plan_review": "Plan Reviewer 2026-09-15: READY WITH CONCERNS. Evidencia: RouteConfig.java (betsServiceRoute) so precisa de 2 clausulas path() novas (.or(path(\"/api/v1/bankroll/**\")).or(path(\"/api/v1/settings/**\"))), mesmo padrao de feat-007/008 (sports/leagues/markets/tipsters); X-User-Id/X-Tenant-Id/X-User-Role ja sao injetados por filtro global (ResolvedIdentityRequestWrapper), nao por rota - nenhuma mudanca de filtro necessaria; PATCH e encaminhado pelo mesmo http() sem rota dedicada por metodo. Unico amendment: GatewayRoutingIntegrationTest ja tem @ParameterizedTest @ValueSource cobrindo /sports,/leagues,/markets,/tipsters,/statistics (linha 152-154) - subtask feat-013.2 deve ESTENDER esse @ValueSource com /api/v1/bankroll e /api/v1/settings em vez de escrever teste novo separado, e adicionar caso dedicado pra PATCH /api/v1/settings (metodo diferente dos demais, que sao todos GET). Risco residual aceito: nao ha teste real contra bets-service rodando (rota mockada), suficiente pro escopo de roteamento puro.",
       "jira": "SV-394",
       "subtasks": [
@@ -408,7 +408,7 @@
           "jira": "SV-397"
         }
       ],
-      "evidence": ""
+      "evidence": "Fechada em 2026-09-15 (branch feature/SV-394, story SV-394, subtasks SV-395/396/397, PRs #38/#39/#40, merge --merge/fast-forward em cada, CI verde nos 3). RouteConfig.betsServiceRoute ganhou path(/api/v1/bankroll/**) e path(/api/v1/settings/**), mesmo padrao de feat-007/008 - sem filtro novo, X-User-Id/X-Tenant-Id/X-User-Role continuam injetados pelo filtro global (ResolvedIdentityRequestWrapper). GatewayRoutingIntegrationTest: @ValueSource parametrizado estendido com os 2 paths novos (mesmo oraculo de /sports,/leagues,/markets,/tipsters - status 200 + path correto no downstream) e 1 caso dedicado novo para PATCH /api/v1/settings, que tambem confere X-User-Id/X-Tenant-Id (mais forte que o padrao, unico caso nao-GET da lista). mvn -B verify: 58 testes, 0 falha (18 em GatewayRoutingIntegrationTest). ./init.sh do Gateway e da raiz verdes. Delivery Reviewer e Test Suite Auditor rodados (revisao direta, sem subagentes - escopo trivial, 1 arquivo de producao com 1 linha alterada): PASS nos dois, sem achado. Vault atualizado no mesmo commit logico: docs/services/api-gateway.md (raiz) ganhou os 2 prefixos na tabela de roteamento + paragrafo explicando a lacuna (mesmo padrao do achado de tipsters em feat-008). Desbloqueia epic-020/epic-021 da raiz (dependiam deste epic-026)."
     }
   ]
 }

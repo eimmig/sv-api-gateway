@@ -2,8 +2,8 @@
 
 ## Estado Atual (Current State)
 
-**Última atualização:** 2026-09-08
-**Feature ativa:** nenhuma (`feat-001..004` e `feat-006` fechadas; só `feat-005` resta)
+**Última atualização:** 2026-09-15
+**Feature ativa:** nenhuma (`feat-001..013` todas `done`, backlog atual esgotado)
 
 ## `feat-006` fechada — filtro global de X-Correlation-Id (2026-09-08)
 
@@ -290,3 +290,15 @@ roteando para `auth-service`/`bets-service`/`stats-service` pelos nomes de host 
 `/actuator/health` UP. Imagem usada de fato pelos manifests Kubernetes de `infra/feat-004`. 1
 subtask (SV-283, story SV-282), 2 PRs (#28 subtask->feature, #29 feature->develop), CI+SonarCloud
 verdes nos dois. Com isso, `feature_list.json` deste harness fica 100% `done` (`feat-001..009`).
+
+## `feat-013` fechada — rotear bankroll e settings (2026-09-15)
+
+Lacuna real (`epic-026` da raiz, achado da auditoria de 2026-09-12): `bets-service` já expunha
+`GET /api/v1/bankroll/balance` e `GET`/`PATCH /api/v1/settings`, `apps/web` já os consumia, mas
+`RouteConfig` nunca ganhou os prefixos — mesmo tipo de lacuna do achado de `tipsters`
+(`feat-008`). Mudança mecânica: 2 `path()` novos na rota de `bets-service`, sem filtro/bean
+novo (identidade já é injetada pelo filtro global). `GatewayRoutingIntegrationTest`: `@ValueSource`
+estendido com os 2 paths + 1 caso dedicado para `PATCH /api/v1/settings`. `mvn -B verify`: 58
+testes, 0 falha. Delivery Reviewer e Test Suite Auditor: PASS, sem achado (escopo trivial, revisão
+direta sem subagentes). `docs/services/api-gateway.md` (raiz) atualizado no mesmo commit lógico.
+Desbloqueia `epic-020`/`epic-021` da raiz. Story SV-394, subtasks SV-395/396/397, PRs #38/#39/#40.
