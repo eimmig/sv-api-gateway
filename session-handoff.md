@@ -1,37 +1,40 @@
 # Session Handoff — api-gateway
 
-## Current Objective
+> Estado atual, não histórico. O diário cronológico é o `progress.md` — este arquivo é reescrito
+> a cada sessão para responder "o que a próxima sessão precisa saber agora".
 
-- `feat-001..013` `done`. Nenhuma feature pendente neste harness.
-- Branch / commit: `develop` @ merge de `feature/SV-394` (mesclado via `feature/SV-394 -> develop`).
+**Última atualização:** 2026-09-15
 
-## Completed This Session (2026-09-15)
+## Objetivo atual
 
-- [x] **`feat-013` fechada** (story SV-394, subtasks SV-395/396/397, PRs #38/#39/#40, CI verde
-      nos 3, merge subtask->feature->develop): `RouteConfig` ganhou `/api/v1/bankroll/**` e
-      `/api/v1/settings/**` na rota de `bets-service` (mesmo padrão de `feat-007`/`008`).
-      `GatewayRoutingIntegrationTest` estendido. Fecha `epic-026` da raiz — desbloqueia
-      `epic-020`/`epic-021`. Ver `progress.md` para o detalhe completo.
+`feat-001`..`feat-014` `done`. Backlog deste serviço esgotado — nenhuma feature `not-started`
+elegível agora.
 
-## Verification Evidence
+## Concluído nesta sessão (2026-09-15)
 
-| Check | Command | Result | Notes |
-|---|---|---|---|
-| Build/test | `mvn -B verify` | pass | 58 testes, 0 falha |
-| CI (subtask gate) | GitHub Actions | pass | PRs #38/#39/#40 |
-| init.sh | `./init.sh` | pass | serviço e raiz |
+- [x] **`feat-014` fechada** (CD automático — job `deploy` em `ci.yml`, `kubectl rollout restart
+      deployment/api-gateway` contra `KUBE_CONFIG`/`ci-deployer` de `infra/feat-007`). Terceira
+      aplicação idêntica do padrão já revisado em `bets-service feat-018`/`stats-service feat-019`
+      na mesma sessão — única diferença o nome do `Deployment`. Story SV-429, subtasks
+      SV-430/SV-431, PRs #42/#43/#44, CI+SonarCloud verdes. `Delivery Reviewer`: PASS (revisão
+      condensada).
+- [x] **Fechamento em 2 disparos de `--sync-status`, corrigindo o erro cometido nas 2 features
+      anteriores desta sessão** (`bets-service feat-018`/`stats-service feat-019`, onde a última
+      subtask e a feature foram marcadas `done` na mesma edição, pulando o estado `Review` no
+      board): aqui, `feat-014.2` foi marcada `done` sozinha primeiro (`--sync-status` → story caiu
+      em `Review` corretamente), e só numa edição separada, depois do merge `story -> develop`
+      real, a feature virou `done` (`--sync-status` → `Review -> Done`). Padrão correto a manter
+      nos 3 repositórios restantes de `epic-028`.
+- [x] Disparo real do job `deploy` adiado (mesma decisão de `bets-service`/`stats-service`) —
+      promoção `develop -> main` é decisão de release mais ampla, não desta feature.
 
-## Blockers / Risks
+## Bloqueios / Riscos
 
 Nenhum.
 
-## Next Session Startup
+## Próxima sessão — por onde começar
 
-1. Ler `../../CLAUDE.md` e o `CLAUDE.md` deste serviço.
-2. `feature_list.json` deste harness: todas as features `done` (`feat-001..013`). Nenhum trabalho
-   pendente aqui até surgir novo achado cross-service ou nova feature.
-3. Rodar `./init.sh` (deve passar).
-
-## Recommended Next Step
-
-- Nenhum próximo passo pendente neste harness.
+1. Rodar `./init.sh` (deve passar).
+2. Backlog deste serviço vazio. Trabalhar noutro harness — ver `feature_list.json` da raiz
+   (`epic-028`: 3 repositórios restantes — `auth-service feat-016`, `telegram-integration
+   feat-010`, `web feat-030`).

@@ -3,7 +3,32 @@
 ## Estado Atual (Current State)
 
 **Última atualização:** 2026-09-15
-**Feature ativa:** nenhuma (`feat-001..013` todas `done`, backlog atual esgotado)
+**Feature ativa:** nenhuma (`feat-001..014` todas `done`, backlog atual esgotado)
+
+## `feat-014` fechada — CD automático, job `deploy` no `ci.yml` (2026-09-15)
+
+Terceira aplicação idêntica do padrão de `epic-028` nesta sessão (depois de `bets-service
+feat-018` e `stats-service feat-019`) — mesmo `Plan Reviewer`, mesmas 2 correções MINOR já
+aplicadas (sem `azure/setup-kubectl`, `permissions: {}` explícito). Única diferença real: nome do
+`Deployment` (`api-gateway`), confirmado contra `infra/k8s/api-gateway.yaml` (sem namespace) e
+`infra/k8s/ci-deployer-rbac.yaml` (`resourceNames` já incluía `api-gateway`). `KUBE_CONFIG`
+confirmado presente no repositório.
+
+Story SV-429 (subtasks SV-430/SV-431), PRs #42/#43/#44, CI+SonarCloud verdes em todos. `Delivery
+Reviewer`: PASS (revisão condensada, terceira aplicação idêntica, sem achado). Disparo real do
+job adiado (mesma decisão das 2 features anteriores — promoção `develop -> main` é decisão de
+release mais ampla).
+
+**Correção de processo desta sessão**: nas 2 features anteriores de `epic-028`
+(`bets-service feat-018`/`stats-service feat-019`), a última subtask e a feature inteira foram
+marcadas `done` na mesma edição do `feature_list.json` antes de rodar `--sync-status` uma única
+vez, pulando o estado `Review` no board do Jira. Corrigido aqui: `feat-014.2` foi marcada `done`
+sozinha primeiro (`--sync-status` → `Review` corretamente), e só depois do merge real
+`story -> develop`, numa edição separada, a feature virou `done` (`--sync-status` → `Review ->
+Done`). Padrão a manter nos 3 repositórios restantes de `epic-028`.
+
+Fecha a parte de `api-gateway` do `epic-028` da raiz — 3 dos 6 repositórios de aplicação ainda
+pendentes (`auth-service feat-016`, `telegram-integration feat-010`, `web feat-030`).
 
 ## `feat-006` fechada — filtro global de X-Correlation-Id (2026-09-08)
 
