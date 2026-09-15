@@ -417,7 +417,7 @@
       "dependencies": [
         "feat-011"
       ],
-      "status": "in-progress",
+      "status": "done",
       "plan_review": "Plan Reviewer (2026-09-15): READY. Mesmo padrao mecanico ja aplicado e validado em bets-service feat-018 e stats-service feat-019 (2 dos 6 repositorios de epic-028 ja fechados nesta sessao) - reaproveitado aqui sem repetir o ciclo de descoberta. Confirmado contra este repositorio antes de codificar: infra/k8s/api-gateway.yaml define o Deployment 'api-gateway' sem namespace (default); RBAC de infra/k8s/ci-deployer-rbac.yaml ja inclui 'api-gateway' em resourceNames; secret KUBE_CONFIG confirmado presente neste repositorio GitHub (gh secret list); default_workflow_permissions='write' (gh api), confirmando a necessidade do permissions: {} explicito. As 2 correcoes MINOR do Plan Reviewer original (sem azure/setup-kubectl - kubectl 1.37.0 ja preinstalado no runner ubuntu-latest; permissions: {} explicito) entram direto no plano aqui. Sem BLOCKER, sem achado novo especifico deste repositorio.",
       "jira": "SV-429",
       "subtasks": [
