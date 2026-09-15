@@ -53,3 +53,5 @@ por serviço"). O "porquê" de cada mudança vive na issue e na mensagem de comm
 - [SV-429](https://stakevault.atlassian.net/browse/SV-429) - CD: job de deploy automatico (kubectl rollout restart) no ci.yml
 - [SV-430](https://stakevault.atlassian.net/browse/SV-430) - Job deploy no ci.yml
 - [SV-431](https://stakevault.atlassian.net/browse/SV-431) - CHANGELOG e verificacao final
+- [SV-441](https://stakevault.atlassian.net/browse/SV-441) - Rotear /api/v1/teams pra bets-service
+- [SV-442](https://stakevault.atlassian.net/browse/SV-442) - Rota /api/v1/teams no RouteConfig + teste
