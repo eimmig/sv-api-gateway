@@ -435,6 +435,26 @@
         }
       ],
       "evidence": "Fechada em 2026-09-15 (story SV-429, subtasks SV-430/SV-431, PR #42 subtask->story verde). Terceira aplicacao identica do padrao ja revisado e fechado em bets-service feat-018/stats-service feat-019 na mesma sessao (mesmo Plan Reviewer, mesmas 2 correcoes MINOR ja aplicadas: sem azure/setup-kubectl, permissions: {} explicito - confirmado necessario pois este repositorio tambem tem default_workflow_permissions=write). Unica diferenca e o nome do Deployment (api-gateway), confirmado contra infra/k8s/api-gateway.yaml (sem namespace) e infra/k8s/ci-deployer-rbac.yaml (resourceNames ja incluia api-gateway). KUBE_CONFIG confirmado presente no repositorio. Delivery Reviewer: PASS (revisao condensada, sem achado). ./init.sh verde. Guard comportou como esperado: deploy/build-and-push-image corretamente 'skipping' no evento de PR (run 35012006990). Disparo real do job adiado (mesma decisao de bets-service/stats-service - promocao develop->main e decisao de release mais ampla, nao exclusiva desta feature; confirmacao real a registrar em docs/services/infra.md quando essa promocao acontecer). Fecha a parte de api-gateway do epic-028 da raiz (3 dos 6 repositorios de aplicacao ainda pendentes: auth-service feat-016, telegram-integration feat-010, web feat-030)."
+    },
+    {
+      "id": "feat-015",
+      "name": "Rotear /api/v1/teams pra bets-service",
+      "description": "Escopo novo, achado real durante bets-service feat-017 (2026-09-15, epic-024 da raiz - evolucao do dominio de times/jogadores): o catalogo TEAM (POST/GET /api/v1/teams) existe em bets-service desde feat-016/017 mas nunca ganhou rota no Gateway - mesmo gap ja resolvido antes pra sports/leagues/markets (feat-007) e tipsters (feat-008). Sem essa rota, apps/web (feat-021, cadastro de time) e qualquer outro consumidor nao alcancam o catalogo de times atraves do unico ponto de entrada HTTP publico.",
+      "dependencies": [
+        "feat-003"
+      ],
+      "status": "in-progress",
+      "plan_review": "Plan Reviewer (2026-09-15): READY. Mudanca mecanica identica a 3 precedentes ja fechados neste mesmo arquivo (feat-007 sports/leagues/markets, feat-008 tipsters, feat-013 bankroll/settings): adicionar path(\"/api/v1/teams/**\") ao betsServiceRoute existente em RouteConfig.java (nenhum filtro novo - identidade ja injetada pelo filtro global de todas as rotas). Confirmado contra bets-service: TeamsController.java tem @RequestMapping(\"/api/v1/teams\") com POST (CreateTeamRequest) e GET paginado, exatamente a forma dos outros 4 catalogos ja roteados. GatewayRoutingIntegrationTest.shouldRoutePasetoAuthenticatedRequestToItsDownstreamService ja e parametrizado por @ValueSource - so adicionar \"/api/v1/teams\" a lista existente cobre o caso novo sem escrever teste do zero. Sem BLOCKER.",
+      "jira": "SV-441",
+      "subtasks": [
+        {
+          "id": "feat-015.1",
+          "name": "Rota /api/v1/teams no RouteConfig + teste",
+          "status": "done",
+          "jira": "SV-442"
+        }
+      ],
+      "evidence": ""
     }
   ]
 }

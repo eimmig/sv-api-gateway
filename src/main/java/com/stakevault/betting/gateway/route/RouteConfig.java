@@ -27,7 +27,8 @@ public class RouteConfig {
 		return route("bets-service")
 				.route(path("/api/v1/betting-houses/**").or(path("/api/v1/bets/**")).or(path("/api/v1/transactions/**"))
 						.or(path("/api/v1/sports/**")).or(path("/api/v1/leagues/**")).or(path("/api/v1/markets/**"))
-					.or(path("/api/v1/tipsters/**")).or(path("/api/v1/bankroll/**")).or(path("/api/v1/settings/**")), http())
+					.or(path("/api/v1/tipsters/**")).or(path("/api/v1/bankroll/**")).or(path("/api/v1/settings/**"))
+					.or(path("/api/v1/teams/**")), http())
 				.before(uri(betsServiceUrl))
 				.build();
 	}
