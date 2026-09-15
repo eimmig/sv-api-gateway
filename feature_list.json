@@ -282,7 +282,7 @@
       "dependencies": [
         "feat-009"
       ],
-      "status": "in-progress",
+      "status": "done",
       "plan_review": "2026-09-10, Plan Reviewer (review-suite:ln-11-plan-reviewer) - READY WITH CONCERNS. Achados: MAJOR - packages: write no permissions do job so e concedido se o repositorio tiver 'Workflow permissions' = Read and write em Settings > Actions > General (default de repositorio novo costuma vir restrito a leitura, e nesse caso o job-level permissions e limitado silenciosamente, push falha com 403 em vez de erro de sintaxe) - verificar/configurar antes do primeiro push em main. MINOR (confirmado contra a documentacao oficial do docker/build-push-action) - nao obrigatorio mas recomendado adicionar docker/setup-buildx-action antes do build, incluido no plano corrigido. Escopo confirmado: PAT/imagePullSecrets do cluster de deploy fica fora desta feature.",
       "jira": "SV-322",
       "subtasks": [
@@ -331,7 +331,130 @@
           "jira": "SV-334"
         }
       ],
-      "evidence": ""
+      "evidence": "Fechada em 2026-09-10. Job build-and-push-image no ci.yml (docker/setup-buildx-action + docker/login-action + docker/build-push-action, tags <sha>/latest, needs: pipeline, if restrito a push em main) publicando de verdade em ghcr.io/eimmig/sv-api-gateway - confirmado via log real do job (containerimage.digest: sha256:7c0bd1a...). 3 achados reais so descobertos verificando ponta a ponta contra o GitHub de verdade (feat-011.3): actions de terceiro pinadas por SHA completo (SonarCloud S7637, risco de supply-chain) e guard de sonar.qualitygate.wait ampliado de 'push para develop' pra qualquer push direto (primeira analise de uma branch longa sem leak period faz a API devolver status NONE, tratado como reprovado pelo plugin). Delivery Reviewer: CONCERNS -> PASS depois de confirmado o push real (unico ponto em aberto era exatamente essa prova). Workflow permissions do repositorio (Settings > Actions > General) confirmado 'Read and write'. ./init.sh do servico e da raiz verdes. docs/CI-CD.md atualizado com os 2 achados (SHA pin, guard de qualitygate ampliado)."
+    },
+    {
+      "id": "feat-012",
+      "name": "Habilitar CORS para chamadas do web",
+      "description": "Achado real durante teste local end-to-end (2026-09-11, subida manual dos 6 servicos): browser bloqueou POST http://localhost:8080/api/v1/auth/login vindo de http://localhost:4200 (apps/web via ng serve) por falta de Access-Control-Allow-Origin - nenhuma nota do vault (docs/API-CONTRACTS.md, docs/services/api-gateway.md, docs/services/web.md) nem feature_list.json deste servico cobria CORS. Gap real, nao so do ambiente local: apps/web sempre chamou o Gateway cross-origin (environment.apiGatewayUrl absoluto, nginx.conf de producao nao faz proxy /api), entao producao real teria o mesmo bloqueio. CorsFilter global (todas as rotas, autenticadas ou nao), origem(ns) configuravel(is) por env (CORS_ALLOWED_ORIGINS, default http://localhost:4200), sem allowCredentials (token PASETO vai em Authorization/localStorage, nunca cookie).",
+      "dependencies": [
+        "feat-001"
+      ],
+      "status": "done",
+      "plan_review": "2026-09-11, Plan Reviewer (review-suite:ln-11-plan-reviewer) rodado contra o plano/diff antes de fechar a feature - passe proprio, sem subagentes (risco baixo-medio: nao e rota de autenticacao nova, mas roda no meio da cadeia de filtros de seguranca existente). Veredito inicial: REVISE, corrigido antes de fechar. Achados: (MAJOR, seguranca) plano original setava CorsConfiguration.setAllowCredentials(true) sem necessidade - grounding em apps/web/src/app/core/auth.ts confirmou token PASETO guardado em localStorage e enviado via header Authorization (auth-interceptor.ts), nunca cookie/withCredentials; allowCredentials so importa para esse caso e alem de amplo a toa quebraria em runtime se allowed-origins algum dia virasse '*' (Spring proibe credentials:true + origin '*') - removido. (MAJOR, cobertura de teste) plano original prussupunha MockHttpServletRequest/MockFilterChain sem contexto Spring (padrao de AdminApiKeyFilterTest/PasetoAuthenticationFilterTest deste servico) - mas CorsFilter e classe do Spring, nao filtro custom, e o ponto central da decisao (rodar antes de PasetoAuthenticationFilter/ServiceKeyAuthenticationFilter) so e provado com o contexto real inteiro; corrigido estendendo GatewayRoutingIntegrationTest (RANDOM_PORT ja existente) com preflight OPTIONS real numa rota protegida + assert de Access-Control-Allow-Origin em requisicao autenticada real. (BLOCKER, descoberto so ao RODAR o teste corrigido, nao previsto no Plan Review original) @Order(Ordered.HIGHEST_PRECEDENCE) direto no metodo @Bean que retorna CorsFilter NAO e respeito pelo registro de Filter do Spring Boot (diferente de CorrelationIdFilter, que e @Component com @Order na propria classe) - preflight caiu em PasetoAuthenticationFilter e voltou 401 antes do CorsFilter interceptar. Corrigido envolvendo em FilterRegistrationBean<CorsFilter> com .setOrder(HIGHEST_PRECEDENCE) explicito (mecanismo que o Boot realmente honra para ordenar Filter beans providos via @Bean de biblioteca) - gotcha registrado em docs/CONVENTIONS.md para nao ser redescoberto por outro servico Java que precise ordenar um Filter de biblioteca. Verificado de verdade: ./mvnw verify (55 testes, 0 falhas, gate JaCoCo 80%) so ficou verde depois dessa correcao - sem ela o proprio teste novo pegava o regressao.",
+      "jira": "SV-392",
+      "subtasks": [
+        {
+          "id": "feat-012.1",
+          "name": "CorsConfig (FilterRegistrationBean ordenado) + testes reais de preflight/allow-origin + CHANGELOG + vault + verificacao final",
+          "status": "done",
+          "jira": "SV-393"
+        }
+      ],
+      "evidence": "Fechada em 2026-09-12 - 1 subtask (SV-393, story SV-392), 1 PR de subtask (#36, subtask/SV-393 -> feature/SV-392) com CI verde (pipeline; build-and-push-image pulado, so roda em main). CorsConfig registra FilterRegistrationBean<CorsFilter> com .setOrder(Ordered.HIGHEST_PRECEDENCE) explicito, origem(ns) via CORS_ALLOWED_ORIGINS (default http://localhost:4200), sem allowCredentials (token PASETO em Authorization/localStorage, nunca cookie - grounding em apps/web/src/app/core/auth.ts). Achado BLOCKER so descoberto ao rodar o teste de integracao novo (nao previsto no Plan Review original): @Order direto no metodo @Bean que retorna o CorsFilter nao ordena o registro do Filter no Spring Boot (diferente de CorrelationIdFilter, @Component com @Order na propria classe) - preflight OPTIONS caia em PasetoAuthenticationFilter e voltava 401 antes do CorsFilter interceptar; corrigido com FilterRegistrationBean.setOrder, gotcha registrado em docs/CONVENTIONS.md (secao 'Backend Java') para os outros 3 servicos Java nao redescobrirem. 2 testes novos em GatewayRoutingIntegrationTest (preflight OPTIONS real em rota protegida sem 401, Access-Control-Allow-Origin ecoado em requisicao autenticada real) - contexto Spring completo, nao MockHttpServletRequest/MockFilterChain (padrao usado para os filtros custom deste servico), porque CorsFilter e classe de biblioteca e o ponto central da decisao e a ordem real na cadeia de filtros. mvn verify: 55 testes, 0 falhas, gate JaCoCo 80% real. ./init.sh do servico verde. docs/API-CONTRACTS.md (nova secao 'CORS'), docs/services/api-gateway.md, docs/services/web.md, docs/OBSERVABILITY-AND-CONFIG.md (CORS_ALLOWED_ORIGINS) e docs/CONVENTIONS.md (gotcha FilterRegistrationBean) atualizados no mesmo commit logico. .env.example documenta CORS_ALLOWED_ORIGINS (comentado, default ja cobre dev). Sem Delivery Reviewer/Test Suite Auditor de skill dedicados nesta sessao (achado pontual pequeno, revisao equivalente feita inline via Plan Review); risco residual aceito: dominio real de producao do web ainda nao existe (mesmo estagio de feat-009/feat-011, so cluster kind local) - CORS_ALLOWED_ORIGINS default localhost:4200 ate existir."
+    },
+    {
+      "id": "feat-013",
+      "name": "Rotear bankroll e settings do bets-service",
+      "description": "Adicionar ao API Gateway as rotas publicas para GET /api/v1/bankroll/balance e GET/PATCH /api/v1/settings, que ja existem no bets-service e sao consumidas pelo dashboard e relatorio do frontend. Preservar a validacao PASETO, injecao de contexto do tenant/usuario e a URL configuravel do bets-service.",
+      "dependencies": [
+        "feat-003",
+        "feat-010"
+      ],
+      "status": "done",
+      "plan_review": "Plan Reviewer 2026-09-15: READY WITH CONCERNS. Evidencia: RouteConfig.java (betsServiceRoute) so precisa de 2 clausulas path() novas (.or(path(\"/api/v1/bankroll/**\")).or(path(\"/api/v1/settings/**\"))), mesmo padrao de feat-007/008 (sports/leagues/markets/tipsters); X-User-Id/X-Tenant-Id/X-User-Role ja sao injetados por filtro global (ResolvedIdentityRequestWrapper), nao por rota - nenhuma mudanca de filtro necessaria; PATCH e encaminhado pelo mesmo http() sem rota dedicada por metodo. Unico amendment: GatewayRoutingIntegrationTest ja tem @ParameterizedTest @ValueSource cobrindo /sports,/leagues,/markets,/tipsters,/statistics (linha 152-154) - subtask feat-013.2 deve ESTENDER esse @ValueSource com /api/v1/bankroll e /api/v1/settings em vez de escrever teste novo separado, e adicionar caso dedicado pra PATCH /api/v1/settings (metodo diferente dos demais, que sao todos GET). Risco residual aceito: nao ha teste real contra bets-service rodando (rota mockada), suficiente pro escopo de roteamento puro.",
+      "jira": "SV-394",
+      "subtasks": [
+        {
+          "id": "feat-013.1",
+          "name": "Adicionar rotas de bankroll e settings",
+          "detail": "Estender RouteConfig para encaminhar os dois prefixos ao bets-service sem criar logica de negocio no Gateway.",
+          "checklist": [
+            "/api/v1/bankroll/** encaminha ao bets-service.",
+            "/api/v1/settings/** encaminha ao bets-service.",
+            "Rotas continuam protegidas pelo filtro global de autenticacao e contexto."
+          ],
+          "validation": "Testes de rota confirmam encaminhamento e preservacao dos headers de identidade/tenant.",
+          "owner": "agente",
+          "status": "done",
+          "jira": "SV-395"
+        },
+        {
+          "id": "feat-013.2",
+          "name": "Testar fluxo pelo Gateway",
+          "detail": "Provar que dashboard e relatorio conseguem consultar bankroll e settings pela URL publica do Gateway. Estender o @ParameterizedTest @ValueSource existente em GatewayRoutingIntegrationTest (linha ~153, ja cobre /sports,/leagues,/markets,/tipsters,/statistics) com /api/v1/bankroll e /api/v1/settings, em vez de criar teste paralelo (achado do Plan Reviewer).",
+          "checklist": [
+            "GET bankroll com e sem at e GET settings respondem pelo Gateway (cobertos pelo @ValueSource estendido).",
+            "PATCH settings preserva a restricao de admin do bets-service - caso dedicado, metodo diferente dos demais do @ValueSource.",
+            "Rota desconhecida nao ganha encaminhamento acidental."
+          ],
+          "validation": "Testes de integracao e ./init.sh do Gateway verdes.",
+          "owner": "agente",
+          "status": "done",
+          "jira": "SV-396"
+        },
+        {
+          "id": "feat-013.3",
+          "name": "CHANGELOG e verificacao final",
+          "detail": "Fechar a alteracao de roteamento com os artefatos obrigatorios e revisao do vault.",
+          "checklist": [
+            "Entrada em CHANGELOG.md.",
+            "./init.sh do Gateway e da raiz verdes.",
+            "Vault (docs/) revisado: alguma descoberta desta feature - mecanismo reaproveitavel, gotcha de lib/config, lacuna de especificacao, decisao que diverge do ja documentado - sem nota correspondente? Se sim, atualizar/criar a nota do assunto no mesmo commit"
+          ],
+          "validation": "Pipeline e verificacao local verdes, evidence preenchida.",
+          "owner": "agente",
+          "status": "done",
+          "jira": "SV-397"
+        }
+      ],
+      "evidence": "Fechada em 2026-09-15 (branch feature/SV-394, story SV-394, subtasks SV-395/396/397, PRs #38/#39/#40, merge --merge/fast-forward em cada, CI verde nos 3). RouteConfig.betsServiceRoute ganhou path(/api/v1/bankroll/**) e path(/api/v1/settings/**), mesmo padrao de feat-007/008 - sem filtro novo, X-User-Id/X-Tenant-Id/X-User-Role continuam injetados pelo filtro global (ResolvedIdentityRequestWrapper). GatewayRoutingIntegrationTest: @ValueSource parametrizado estendido com os 2 paths novos (mesmo oraculo de /sports,/leagues,/markets,/tipsters - status 200 + path correto no downstream) e 1 caso dedicado novo para PATCH /api/v1/settings, que tambem confere X-User-Id/X-Tenant-Id (mais forte que o padrao, unico caso nao-GET da lista). mvn -B verify: 58 testes, 0 falha (18 em GatewayRoutingIntegrationTest). ./init.sh do Gateway e da raiz verdes. Delivery Reviewer e Test Suite Auditor rodados (revisao direta, sem subagentes - escopo trivial, 1 arquivo de producao com 1 linha alterada): PASS nos dois, sem achado. Vault atualizado no mesmo commit logico: docs/services/api-gateway.md (raiz) ganhou os 2 prefixos na tabela de roteamento + paragrafo explicando a lacuna (mesmo padrao do achado de tipsters em feat-008). Desbloqueia epic-020/epic-021 da raiz (dependiam deste epic-026)."
+    },
+    {
+      "id": "feat-014",
+      "name": "CD: job de deploy automatico (kubectl rollout restart) no ci.yml",
+      "description": "Fecha epic-028 da raiz (decisao do usuario, 2026-09-15) neste repositorio: job novo 'deploy' no ci.yml, needs: build-and-push-image (feat-011), if restrito a push em main, rodando kubectl rollout restart deployment/api-gateway -n <namespace> contra o kubeconfig do secret KUBE_CONFIG (gerado por infra/feat-007 - ServiceAccount de CI com RBAC restrito, fora deste repositorio). Nao reaplica manifest - a imagem e referenciada por tag :latest no Deployment, o restart e o suficiente pra repuxar a imagem nova publicada pelo job anterior.",
+      "dependencies": [
+        "feat-011"
+      ],
+      "status": "done",
+      "plan_review": "Plan Reviewer (2026-09-15): READY. Mesmo padrao mecanico ja aplicado e validado em bets-service feat-018 e stats-service feat-019 (2 dos 6 repositorios de epic-028 ja fechados nesta sessao) - reaproveitado aqui sem repetir o ciclo de descoberta. Confirmado contra este repositorio antes de codificar: infra/k8s/api-gateway.yaml define o Deployment 'api-gateway' sem namespace (default); RBAC de infra/k8s/ci-deployer-rbac.yaml ja inclui 'api-gateway' em resourceNames; secret KUBE_CONFIG confirmado presente neste repositorio GitHub (gh secret list); default_workflow_permissions='write' (gh api), confirmando a necessidade do permissions: {} explicito. As 2 correcoes MINOR do Plan Reviewer original (sem azure/setup-kubectl - kubectl 1.37.0 ja preinstalado no runner ubuntu-latest; permissions: {} explicito) entram direto no plano aqui. Sem BLOCKER, sem achado novo especifico deste repositorio.",
+      "jira": "SV-429",
+      "subtasks": [
+        {
+          "id": "feat-014.1",
+          "name": "Job deploy no ci.yml",
+          "status": "done",
+          "jira": "SV-430"
+        },
+        {
+          "id": "feat-014.2",
+          "name": "CHANGELOG e verificacao final",
+          "status": "done",
+          "jira": "SV-431"
+        }
+      ],
+      "evidence": "Fechada em 2026-09-15 (story SV-429, subtasks SV-430/SV-431, PR #42 subtask->story verde). Terceira aplicacao identica do padrao ja revisado e fechado em bets-service feat-018/stats-service feat-019 na mesma sessao (mesmo Plan Reviewer, mesmas 2 correcoes MINOR ja aplicadas: sem azure/setup-kubectl, permissions: {} explicito - confirmado necessario pois este repositorio tambem tem default_workflow_permissions=write). Unica diferenca e o nome do Deployment (api-gateway), confirmado contra infra/k8s/api-gateway.yaml (sem namespace) e infra/k8s/ci-deployer-rbac.yaml (resourceNames ja incluia api-gateway). KUBE_CONFIG confirmado presente no repositorio. Delivery Reviewer: PASS (revisao condensada, sem achado). ./init.sh verde. Guard comportou como esperado: deploy/build-and-push-image corretamente 'skipping' no evento de PR (run 35012006990). Disparo real do job adiado (mesma decisao de bets-service/stats-service - promocao develop->main e decisao de release mais ampla, nao exclusiva desta feature; confirmacao real a registrar em docs/services/infra.md quando essa promocao acontecer). Fecha a parte de api-gateway do epic-028 da raiz (3 dos 6 repositorios de aplicacao ainda pendentes: auth-service feat-016, telegram-integration feat-010, web feat-030)."
+    },
+    {
+      "id": "feat-015",
+      "name": "Rotear /api/v1/teams pra bets-service",
+      "description": "Escopo novo, achado real durante bets-service feat-017 (2026-09-15, epic-024 da raiz - evolucao do dominio de times/jogadores): o catalogo TEAM (POST/GET /api/v1/teams) existe em bets-service desde feat-016/017 mas nunca ganhou rota no Gateway - mesmo gap ja resolvido antes pra sports/leagues/markets (feat-007) e tipsters (feat-008). Sem essa rota, apps/web (feat-021, cadastro de time) e qualquer outro consumidor nao alcancam o catalogo de times atraves do unico ponto de entrada HTTP publico.",
+      "dependencies": [
+        "feat-003"
+      ],
+      "status": "done",
+      "plan_review": "Plan Reviewer (2026-09-15): READY. Mudanca mecanica identica a 3 precedentes ja fechados neste mesmo arquivo (feat-007 sports/leagues/markets, feat-008 tipsters, feat-013 bankroll/settings): adicionar path(\"/api/v1/teams/**\") ao betsServiceRoute existente em RouteConfig.java (nenhum filtro novo - identidade ja injetada pelo filtro global de todas as rotas). Confirmado contra bets-service: TeamsController.java tem @RequestMapping(\"/api/v1/teams\") com POST (CreateTeamRequest) e GET paginado, exatamente a forma dos outros 4 catalogos ja roteados. GatewayRoutingIntegrationTest.shouldRoutePasetoAuthenticatedRequestToItsDownstreamService ja e parametrizado por @ValueSource - so adicionar \"/api/v1/teams\" a lista existente cobre o caso novo sem escrever teste do zero. Sem BLOCKER.",
+      "jira": "SV-441",
+      "subtasks": [
+        {
+          "id": "feat-015.1",
+          "name": "Rota /api/v1/teams no RouteConfig + teste",
+          "status": "done",
+          "jira": "SV-442"
+        }
+      ],
+      "evidence": "Fechada em 2026-09-15 (story SV-441, subtask SV-442, PRs #45/#46, CI+SonarCloud verdes, merge feature/SV-441 -> develop). Mudanca mecanica identica aos 3 precedentes ja fechados neste arquivo (feat-007 sports/leagues/markets, feat-008 tipsters, feat-013 bankroll/settings): path(\"/api/v1/teams/**\") acrescentado ao betsServiceRoute, sem filtro novo. GatewayRoutingIntegrationTest estendido (parametrizado, so um valor a mais na lista). Delivery Reviewer: PASS (revisao condensada, sem achado). ./init.sh verde. docs/services/api-gateway.md atualizado no mesmo commit logico (tabela de roteamento + nota do gap ja documentada em bets-service feat-017, agora fechada). Desbloqueia apps/web feat-021 (cadastro de time) - o catalogo TEAM de bets-service agora e alcancavel atraves do unico ponto de entrada HTTP publico."
     }
   ]
 }

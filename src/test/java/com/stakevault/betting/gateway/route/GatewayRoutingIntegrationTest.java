@@ -151,7 +151,7 @@ class GatewayRoutingIntegrationTest {
 
 	@ParameterizedTest
 	@ValueSource(strings = { "/api/v1/statistics", "/api/v1/sports", "/api/v1/leagues", "/api/v1/markets",
-			"/api/v1/tipsters" })
+			"/api/v1/tipsters", "/api/v1/bankroll", "/api/v1/settings", "/api/v1/teams" })
 	void shouldRoutePasetoAuthenticatedRequestToItsDownstreamService(String path) throws Exception {
 		String userId = UUID.randomUUID().toString();
 		HttpRequest request = HttpRequest.newBuilder(URI.create("http://localhost:" + port + path))
@@ -202,6 +202,22 @@ class GatewayRoutingIntegrationTest {
 	}
 
 	@Test
+	void shouldRoutePatchSettingsRequestToBetsService() throws Exception {
+		String userId = UUID.randomUUID().toString();
+		HttpRequest request = HttpRequest.newBuilder(URI.create("http://localhost:" + port + "/api/v1/settings"))
+				.header("Authorization", "Bearer " + validToken(userId, "acme"))
+				.method("PATCH", HttpRequest.BodyPublishers.noBody())
+				.build();
+
+		HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+		assertThat(response.statusCode()).isEqualTo(200);
+		assertThat(lastPath.get()).isEqualTo("/api/v1/settings");
+		assertThat(lastUserIdHeader.get()).isEqualTo(userId);
+		assertThat(lastTenantIdHeader.get()).isEqualTo("acme");
+	}
+
+	@Test
 	void shouldRouteTelegramLinksRequestToAuthService() throws Exception {
 		String userId = UUID.randomUUID().toString();
 		HttpRequest request = HttpRequest
@@ -240,5 +256,36 @@ class GatewayRoutingIntegrationTest {
 
 		assertThat(response.headers().firstValue("X-Correlation-Id")).contains("client-correlation-id");
 		assertThat(lastCorrelationIdHeader.get()).isEqualTo("client-correlation-id");
+	}
+
+	@Test
+	void shouldAnswerCorsPreflightOnProtectedRouteWithoutRequiringAuthentication() throws Exception {
+		lastPath.set(null);
+		HttpRequest request = HttpRequest.newBuilder(URI.create("http://localhost:" + port + "/api/v1/bets"))
+				.header("Origin", "http://localhost:4200")
+				.header("Access-Control-Request-Method", "POST")
+				.method("OPTIONS", HttpRequest.BodyPublishers.noBody())
+				.build();
+
+		HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+		assertThat(response.statusCode()).isEqualTo(200);
+		assertThat(response.headers().firstValue("Access-Control-Allow-Origin")).contains("http://localhost:4200");
+		assertThat(lastPath.get()).isNull();
+	}
+
+	@Test
+	void shouldEchoAllowOriginHeaderOnActualAuthenticatedRequest() throws Exception {
+		String userId = UUID.randomUUID().toString();
+		HttpRequest request = HttpRequest.newBuilder(URI.create("http://localhost:" + port + "/api/v1/users"))
+				.header("Authorization", "Bearer " + validToken(userId, "acme"))
+				.header("Origin", "http://localhost:4200")
+				.POST(HttpRequest.BodyPublishers.noBody())
+				.build();
+
+		HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+		assertThat(response.statusCode()).isEqualTo(200);
+		assertThat(response.headers().firstValue("Access-Control-Allow-Origin")).contains("http://localhost:4200");
 	}
 }

@@ -2,8 +2,55 @@
 
 ## Estado Atual (Current State)
 
-**Última atualização:** 2026-09-08
-**Feature ativa:** nenhuma (`feat-001..004` e `feat-006` fechadas; só `feat-005` resta)
+**Última atualização:** 2026-09-15
+**Feature ativa:** nenhuma (`feat-001..015` todas `done`, backlog atual esgotado)
+
+## `feat-015` fechada — rotear `/api/v1/teams` pra bets-service (2026-09-15, mesmo dia)
+
+Achado real deixado em aberto por `bets-service feat-017` (mesma sessão): o catálogo `TEAM`
+(`POST`/`GET /api/v1/teams`) existia desde `feat-016`/`feat-017` daquele serviço, mas nenhuma
+sessão de `api-gateway` tinha aberto feature pra cobrir a rota — mesmo tipo de gap já corrigido
+antes pra `tipsters` (`feat-008`) e `bankroll`/`settings` (`feat-013`), já documentado como "Gap
+aberto" em `docs/services/api-gateway.md` antes mesmo desta feature existir.
+
+Mudança mecânica idêntica aos 3 precedentes: `path("/api/v1/teams/**")` acrescentado ao
+`betsServiceRoute` existente, sem filtro novo (`X-User-Id`/`X-Tenant-Id` já injetados pelo filtro
+global). `GatewayRoutingIntegrationTest` estendido — o teste já era parametrizado por
+`@ValueSource`, só um valor a mais na lista, sem escrever teste do zero.
+
+Story SV-441 (subtask SV-442), PRs #45/#46, CI+SonarCloud verdes. `Delivery Reviewer`: PASS
+(revisão condensada, mudança mecânica de precedente já validado 3 vezes, sem achado). Fechamento
+em 2 disparos de `--sync-status` (subtask done sozinha → `Review`; feature done em edição
+separada → `Done`). `docs/services/api-gateway.md` atualizado no mesmo commit lógico (tabela de
+roteamento + nota do gap fechada).
+
+Desbloqueia `apps/web feat-021` (cadastro de time) — o catálogo `TEAM` agora é alcançável através
+do único ponto de entrada HTTP público.
+
+## `feat-014` fechada — CD automático, job `deploy` no `ci.yml` (2026-09-15)
+
+Terceira aplicação idêntica do padrão de `epic-028` nesta sessão (depois de `bets-service
+feat-018` e `stats-service feat-019`) — mesmo `Plan Reviewer`, mesmas 2 correções MINOR já
+aplicadas (sem `azure/setup-kubectl`, `permissions: {}` explícito). Única diferença real: nome do
+`Deployment` (`api-gateway`), confirmado contra `infra/k8s/api-gateway.yaml` (sem namespace) e
+`infra/k8s/ci-deployer-rbac.yaml` (`resourceNames` já incluía `api-gateway`). `KUBE_CONFIG`
+confirmado presente no repositório.
+
+Story SV-429 (subtasks SV-430/SV-431), PRs #42/#43/#44, CI+SonarCloud verdes em todos. `Delivery
+Reviewer`: PASS (revisão condensada, terceira aplicação idêntica, sem achado). Disparo real do
+job adiado (mesma decisão das 2 features anteriores — promoção `develop -> main` é decisão de
+release mais ampla).
+
+**Correção de processo desta sessão**: nas 2 features anteriores de `epic-028`
+(`bets-service feat-018`/`stats-service feat-019`), a última subtask e a feature inteira foram
+marcadas `done` na mesma edição do `feature_list.json` antes de rodar `--sync-status` uma única
+vez, pulando o estado `Review` no board do Jira. Corrigido aqui: `feat-014.2` foi marcada `done`
+sozinha primeiro (`--sync-status` → `Review` corretamente), e só depois do merge real
+`story -> develop`, numa edição separada, a feature virou `done` (`--sync-status` → `Review ->
+Done`). Padrão a manter nos 3 repositórios restantes de `epic-028`.
+
+Fecha a parte de `api-gateway` do `epic-028` da raiz — 3 dos 6 repositórios de aplicação ainda
+pendentes (`auth-service feat-016`, `telegram-integration feat-010`, `web feat-030`).
 
 ## `feat-006` fechada — filtro global de X-Correlation-Id (2026-09-08)
 
@@ -290,3 +337,15 @@ roteando para `auth-service`/`bets-service`/`stats-service` pelos nomes de host 
 `/actuator/health` UP. Imagem usada de fato pelos manifests Kubernetes de `infra/feat-004`. 1
 subtask (SV-283, story SV-282), 2 PRs (#28 subtask->feature, #29 feature->develop), CI+SonarCloud
 verdes nos dois. Com isso, `feature_list.json` deste harness fica 100% `done` (`feat-001..009`).
+
+## `feat-013` fechada — rotear bankroll e settings (2026-09-15)
+
+Lacuna real (`epic-026` da raiz, achado da auditoria de 2026-09-12): `bets-service` já expunha
+`GET /api/v1/bankroll/balance` e `GET`/`PATCH /api/v1/settings`, `apps/web` já os consumia, mas
+`RouteConfig` nunca ganhou os prefixos — mesmo tipo de lacuna do achado de `tipsters`
+(`feat-008`). Mudança mecânica: 2 `path()` novos na rota de `bets-service`, sem filtro/bean
+novo (identidade já é injetada pelo filtro global). `GatewayRoutingIntegrationTest`: `@ValueSource`
+estendido com os 2 paths + 1 caso dedicado para `PATCH /api/v1/settings`. `mvn -B verify`: 58
+testes, 0 falha. Delivery Reviewer e Test Suite Auditor: PASS, sem achado (escopo trivial, revisão
+direta sem subagentes). `docs/services/api-gateway.md` (raiz) atualizado no mesmo commit lógico.
+Desbloqueia `epic-020`/`epic-021` da raiz. Story SV-394, subtasks SV-395/396/397, PRs #38/#39/#40.

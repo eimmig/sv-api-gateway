@@ -25,6 +25,9 @@ gateway:
   stats-service-url: ${STATS_SERVICE_URL:http://localhost:8083}
   service-key: ${SERVICE_KEY}
 
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
+
 ---
 spring:
   config:
