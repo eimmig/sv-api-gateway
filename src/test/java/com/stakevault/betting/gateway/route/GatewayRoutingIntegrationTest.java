@@ -151,7 +151,7 @@ class GatewayRoutingIntegrationTest {
 
 	@ParameterizedTest
 	@ValueSource(strings = { "/api/v1/statistics", "/api/v1/sports", "/api/v1/leagues", "/api/v1/markets",
-			"/api/v1/tipsters" })
+			"/api/v1/tipsters", "/api/v1/bankroll", "/api/v1/settings" })
 	void shouldRoutePasetoAuthenticatedRequestToItsDownstreamService(String path) throws Exception {
 		String userId = UUID.randomUUID().toString();
 		HttpRequest request = HttpRequest.newBuilder(URI.create("http://localhost:" + port + path))
@@ -199,6 +199,22 @@ class GatewayRoutingIntegrationTest {
 		assertThat(lastPath.get()).isEqualTo("/api/v1/sports");
 		assertThat(lastUserIdHeader.get()).isEqualTo("resolved-user");
 		assertThat(lastTenantIdHeader.get()).isEqualTo("resolved-tenant");
+	}
+
+	@Test
+	void shouldRoutePatchSettingsRequestToBetsService() throws Exception {
+		String userId = UUID.randomUUID().toString();
+		HttpRequest request = HttpRequest.newBuilder(URI.create("http://localhost:" + port + "/api/v1/settings"))
+				.header("Authorization", "Bearer " + validToken(userId, "acme"))
+				.method("PATCH", HttpRequest.BodyPublishers.noBody())
+				.build();
+
+		HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+		assertThat(response.statusCode()).isEqualTo(200);
+		assertThat(lastPath.get()).isEqualTo("/api/v1/settings");
+		assertThat(lastUserIdHeader.get()).isEqualTo(userId);
+		assertThat(lastTenantIdHeader.get()).isEqualTo("acme");
 	}
 
 	@Test

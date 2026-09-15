@@ -352,6 +352,63 @@
         }
       ],
       "evidence": "Fechada em 2026-09-12 - 1 subtask (SV-393, story SV-392), 1 PR de subtask (#36, subtask/SV-393 -> feature/SV-392) com CI verde (pipeline; build-and-push-image pulado, so roda em main). CorsConfig registra FilterRegistrationBean<CorsFilter> com .setOrder(Ordered.HIGHEST_PRECEDENCE) explicito, origem(ns) via CORS_ALLOWED_ORIGINS (default http://localhost:4200), sem allowCredentials (token PASETO em Authorization/localStorage, nunca cookie - grounding em apps/web/src/app/core/auth.ts). Achado BLOCKER so descoberto ao rodar o teste de integracao novo (nao previsto no Plan Review original): @Order direto no metodo @Bean que retorna o CorsFilter nao ordena o registro do Filter no Spring Boot (diferente de CorrelationIdFilter, @Component com @Order na propria classe) - preflight OPTIONS caia em PasetoAuthenticationFilter e voltava 401 antes do CorsFilter interceptar; corrigido com FilterRegistrationBean.setOrder, gotcha registrado em docs/CONVENTIONS.md (secao 'Backend Java') para os outros 3 servicos Java nao redescobrirem. 2 testes novos em GatewayRoutingIntegrationTest (preflight OPTIONS real em rota protegida sem 401, Access-Control-Allow-Origin ecoado em requisicao autenticada real) - contexto Spring completo, nao MockHttpServletRequest/MockFilterChain (padrao usado para os filtros custom deste servico), porque CorsFilter e classe de biblioteca e o ponto central da decisao e a ordem real na cadeia de filtros. mvn verify: 55 testes, 0 falhas, gate JaCoCo 80% real. ./init.sh do servico verde. docs/API-CONTRACTS.md (nova secao 'CORS'), docs/services/api-gateway.md, docs/services/web.md, docs/OBSERVABILITY-AND-CONFIG.md (CORS_ALLOWED_ORIGINS) e docs/CONVENTIONS.md (gotcha FilterRegistrationBean) atualizados no mesmo commit logico. .env.example documenta CORS_ALLOWED_ORIGINS (comentado, default ja cobre dev). Sem Delivery Reviewer/Test Suite Auditor de skill dedicados nesta sessao (achado pontual pequeno, revisao equivalente feita inline via Plan Review); risco residual aceito: dominio real de producao do web ainda nao existe (mesmo estagio de feat-009/feat-011, so cluster kind local) - CORS_ALLOWED_ORIGINS default localhost:4200 ate existir."
+    },
+    {
+      "id": "feat-013",
+      "name": "Rotear bankroll e settings do bets-service",
+      "description": "Adicionar ao API Gateway as rotas publicas para GET /api/v1/bankroll/balance e GET/PATCH /api/v1/settings, que ja existem no bets-service e sao consumidas pelo dashboard e relatorio do frontend. Preservar a validacao PASETO, injecao de contexto do tenant/usuario e a URL configuravel do bets-service.",
+      "dependencies": [
+        "feat-003",
+        "feat-010"
+      ],
+      "status": "done",
+      "plan_review": "Plan Reviewer 2026-09-15: READY WITH CONCERNS. Evidencia: RouteConfig.java (betsServiceRoute) so precisa de 2 clausulas path() novas (.or(path(\"/api/v1/bankroll/**\")).or(path(\"/api/v1/settings/**\"))), mesmo padrao de feat-007/008 (sports/leagues/markets/tipsters); X-User-Id/X-Tenant-Id/X-User-Role ja sao injetados por filtro global (ResolvedIdentityRequestWrapper), nao por rota - nenhuma mudanca de filtro necessaria; PATCH e encaminhado pelo mesmo http() sem rota dedicada por metodo. Unico amendment: GatewayRoutingIntegrationTest ja tem @ParameterizedTest @ValueSource cobrindo /sports,/leagues,/markets,/tipsters,/statistics (linha 152-154) - subtask feat-013.2 deve ESTENDER esse @ValueSource com /api/v1/bankroll e /api/v1/settings em vez de escrever teste novo separado, e adicionar caso dedicado pra PATCH /api/v1/settings (metodo diferente dos demais, que sao todos GET). Risco residual aceito: nao ha teste real contra bets-service rodando (rota mockada), suficiente pro escopo de roteamento puro.",
+      "jira": "SV-394",
+      "subtasks": [
+        {
+          "id": "feat-013.1",
+          "name": "Adicionar rotas de bankroll e settings",
+          "detail": "Estender RouteConfig para encaminhar os dois prefixos ao bets-service sem criar logica de negocio no Gateway.",
+          "checklist": [
+            "/api/v1/bankroll/** encaminha ao bets-service.",
+            "/api/v1/settings/** encaminha ao bets-service.",
+            "Rotas continuam protegidas pelo filtro global de autenticacao e contexto."
+          ],
+          "validation": "Testes de rota confirmam encaminhamento e preservacao dos headers de identidade/tenant.",
+          "owner": "agente",
+          "status": "done",
+          "jira": "SV-395"
+        },
+        {
+          "id": "feat-013.2",
+          "name": "Testar fluxo pelo Gateway",
+          "detail": "Provar que dashboard e relatorio conseguem consultar bankroll e settings pela URL publica do Gateway. Estender o @ParameterizedTest @ValueSource existente em GatewayRoutingIntegrationTest (linha ~153, ja cobre /sports,/leagues,/markets,/tipsters,/statistics) com /api/v1/bankroll e /api/v1/settings, em vez de criar teste paralelo (achado do Plan Reviewer).",
+          "checklist": [
+            "GET bankroll com e sem at e GET settings respondem pelo Gateway (cobertos pelo @ValueSource estendido).",
+            "PATCH settings preserva a restricao de admin do bets-service - caso dedicado, metodo diferente dos demais do @ValueSource.",
+            "Rota desconhecida nao ganha encaminhamento acidental."
+          ],
+          "validation": "Testes de integracao e ./init.sh do Gateway verdes.",
+          "owner": "agente",
+          "status": "done",
+          "jira": "SV-396"
+        },
+        {
+          "id": "feat-013.3",
+          "name": "CHANGELOG e verificacao final",
+          "detail": "Fechar a alteracao de roteamento com os artefatos obrigatorios e revisao do vault.",
+          "checklist": [
+            "Entrada em CHANGELOG.md.",
+            "./init.sh do Gateway e da raiz verdes.",
+            "Vault (docs/) revisado: alguma descoberta desta feature - mecanismo reaproveitavel, gotcha de lib/config, lacuna de especificacao, decisao que diverge do ja documentado - sem nota correspondente? Se sim, atualizar/criar a nota do assunto no mesmo commit"
+          ],
+          "validation": "Pipeline e verificacao local verdes, evidence preenchida.",
+          "owner": "agente",
+          "status": "done",
+          "jira": "SV-397"
+        }
+      ],
+      "evidence": "Fechada em 2026-09-15 (branch feature/SV-394, story SV-394, subtasks SV-395/396/397, PRs #38/#39/#40, merge --merge/fast-forward em cada, CI verde nos 3). RouteConfig.betsServiceRoute ganhou path(/api/v1/bankroll/**) e path(/api/v1/settings/**), mesmo padrao de feat-007/008 - sem filtro novo, X-User-Id/X-Tenant-Id/X-User-Role continuam injetados pelo filtro global (ResolvedIdentityRequestWrapper). GatewayRoutingIntegrationTest: @ValueSource parametrizado estendido com os 2 paths novos (mesmo oraculo de /sports,/leagues,/markets,/tipsters - status 200 + path correto no downstream) e 1 caso dedicado novo para PATCH /api/v1/settings, que tambem confere X-User-Id/X-Tenant-Id (mais forte que o padrao, unico caso nao-GET da lista). mvn -B verify: 58 testes, 0 falha (18 em GatewayRoutingIntegrationTest). ./init.sh do Gateway e da raiz verdes. Delivery Reviewer e Test Suite Auditor rodados (revisao direta, sem subagentes - escopo trivial, 1 arquivo de producao com 1 linha alterada): PASS nos dois, sem achado. Vault atualizado no mesmo commit logico: docs/services/api-gateway.md (raiz) ganhou os 2 prefixos na tabela de roteamento + paragrafo explicando a lacuna (mesmo padrao do achado de tipsters em feat-008). Desbloqueia epic-020/epic-021 da raiz (dependiam deste epic-026)."
     }
   ]
 }
