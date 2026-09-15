@@ -3,7 +3,29 @@
 ## Estado Atual (Current State)
 
 **Última atualização:** 2026-09-15
-**Feature ativa:** nenhuma (`feat-001..014` todas `done`, backlog atual esgotado)
+**Feature ativa:** nenhuma (`feat-001..015` todas `done`, backlog atual esgotado)
+
+## `feat-015` fechada — rotear `/api/v1/teams` pra bets-service (2026-09-15, mesmo dia)
+
+Achado real deixado em aberto por `bets-service feat-017` (mesma sessão): o catálogo `TEAM`
+(`POST`/`GET /api/v1/teams`) existia desde `feat-016`/`feat-017` daquele serviço, mas nenhuma
+sessão de `api-gateway` tinha aberto feature pra cobrir a rota — mesmo tipo de gap já corrigido
+antes pra `tipsters` (`feat-008`) e `bankroll`/`settings` (`feat-013`), já documentado como "Gap
+aberto" em `docs/services/api-gateway.md` antes mesmo desta feature existir.
+
+Mudança mecânica idêntica aos 3 precedentes: `path("/api/v1/teams/**")` acrescentado ao
+`betsServiceRoute` existente, sem filtro novo (`X-User-Id`/`X-Tenant-Id` já injetados pelo filtro
+global). `GatewayRoutingIntegrationTest` estendido — o teste já era parametrizado por
+`@ValueSource`, só um valor a mais na lista, sem escrever teste do zero.
+
+Story SV-441 (subtask SV-442), PRs #45/#46, CI+SonarCloud verdes. `Delivery Reviewer`: PASS
+(revisão condensada, mudança mecânica de precedente já validado 3 vezes, sem achado). Fechamento
+em 2 disparos de `--sync-status` (subtask done sozinha → `Review`; feature done em edição
+separada → `Done`). `docs/services/api-gateway.md` atualizado no mesmo commit lógico (tabela de
+roteamento + nota do gap fechada).
+
+Desbloqueia `apps/web feat-021` (cadastro de time) — o catálogo `TEAM` agora é alcançável através
+do único ponto de entrada HTTP público.
 
 ## `feat-014` fechada — CD automático, job `deploy` no `ci.yml` (2026-09-15)
 
