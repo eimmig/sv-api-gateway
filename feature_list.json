@@ -474,7 +474,7 @@
         {
           "id": "feat-016.2",
           "name": "CHANGELOG, verificacao final e revisao do vault",
-          "status": "not-started",
+          "status": "done",
           "jira": "SV-560",
           "detail": "Fecha a parte de api-gateway do epic-032 da raiz - ultimo dos 4 servicos Java, resta so infra/ na ordem sugerida.",
           "checklist": [
@@ -487,7 +487,7 @@
           "owner": "agente"
         }
       ],
-      "evidence": ""
+      "evidence": "2 subtasks (SV-559/560, story SV-558) done, PR #48 (SV-559) subtask->story com CI verde. Rename StakeVault->Arka em pom.xml linha 15 ('<description>') - unico ponto de prosa/metadado com marca fora do GroupId Maven com.stakevault.betting (identificador tecnico deferido, docs/DECISIONS-LOG.md raiz 2026-09-23). Plan Reviewer (passe proprio, cobrindo os 4 servicos Java de uma vez, ver services/auth-service/feature_list.json feat-019): READY, sem achado. Delivery Reviewer (passe proprio sobre o diff completo, 3 arquivos, 37 linhas): PASS, sem achado. Mesmo residuo local do Windows ja registrado em auth-service feat-019.2: 8 processos java.exe orfaos de outro teste do usuario mantinham os jars antigos de target/ abertos, impedindo o repackage do mvn verify localmente - usuario autorizou pular o build local em vez de derrubar os processos. Verificacao alternativa: 'mvn -q -DskipTests=false test' (EXIT=0, todos os testes passando). Gap fechado pelo gate real: o PR story->develop (CI no GitHub Actions, ambiente Linux sem o lock do Windows) roda 'mvn verify' completo incluindo repackage - confirma que a limitacao era so do ambiente local. Fecha a parte de api-gateway do epic-032 da raiz - ultimo dos 4 servicos Java, resta so infra/ na ordem sugerida."
     }
   ]
 }
