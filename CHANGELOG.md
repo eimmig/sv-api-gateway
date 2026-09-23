@@ -55,3 +55,6 @@ por serviço"). O "porquê" de cada mudança vive na issue e na mensagem de comm
 - [SV-431](https://stakevault.atlassian.net/browse/SV-431) - CHANGELOG e verificacao final
 - [SV-441](https://stakevault.atlassian.net/browse/SV-441) - Rotear /api/v1/teams pra bets-service
 - [SV-442](https://stakevault.atlassian.net/browse/SV-442) - Rota /api/v1/teams no RouteConfig + teste
+- [SV-558](https://stakevault.atlassian.net/browse/SV-558) - Reformulacao de marca: StakeVault -> Arka (pom.xml description)
+- [SV-559](https://stakevault.atlassian.net/browse/SV-559) - pom.xml: description 'StakeVault' -> 'Arka'
+- [SV-560](https://stakevault.atlassian.net/browse/SV-560) - CHANGELOG, verificacao final e revisao do vault
