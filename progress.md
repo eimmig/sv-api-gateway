@@ -349,3 +349,17 @@ estendido com os 2 paths + 1 caso dedicado para `PATCH /api/v1/settings`. `mvn -
 testes, 0 falha. Delivery Reviewer e Test Suite Auditor: PASS, sem achado (escopo trivial, revisão
 direta sem subagentes). `docs/services/api-gateway.md` (raiz) atualizado no mesmo commit lógico.
 Desbloqueia `epic-020`/`epic-021` da raiz. Story SV-394, subtasks SV-395/396/397, PRs #38/#39/#40.
+
+## `feat-016` fechada — reformulação de marca StakeVault -> Arka (2026-09-23)
+
+Continuação do `epic-032` da raiz - 4º e último dos 4 serviços Java (depois de `auth-service
+feat-019`, `bets-service feat-020` e `stats-service feat-021`, mesmo plano base reaproveitado).
+Único ponto real de marca: `pom.xml` linha 15 (`<description>`) - GroupId `com.stakevault.betting`
+fora de escopo. Plan Reviewer condensado (READY, ver `services/auth-service/feature_list.json`
+feat-019). Delivery Reviewer: PASS. 2 subtasks (SV-559/560, story SV-558), PRs #48/#49/#50,
+CI+SonarCloud verdes.
+
+Mesmo residual de ambiente (processos `java.exe` órfãos travando o `repackage` local) documentado
+em `services/auth-service/progress.md` - `mvn test` local verde, `mvn verify` completo confirmado
+pelo CI. Fecha a parte de `api-gateway` do `epic-032` da raiz - último dos 4 serviços Java, resta
+só `infra/` na ordem sugerida.
