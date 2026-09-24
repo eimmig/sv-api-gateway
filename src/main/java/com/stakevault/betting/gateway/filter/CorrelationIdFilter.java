@@ -14,11 +14,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-/**
- * Runs before every other filter (PasetoAuthenticationFilter/ServiceKeyAuthenticationFilter have
- * no explicit @Order and default to LOWEST_PRECEDENCE) so the correlation id is already in the
- * MDC when those filters log a rejection.
- */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class CorrelationIdFilter extends OncePerRequestFilter {

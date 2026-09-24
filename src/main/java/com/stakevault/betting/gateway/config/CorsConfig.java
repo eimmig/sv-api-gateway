@@ -11,17 +11,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
-/**
- * Roda como Filter de servlet puro (nao WebMvcConfigurer#addCorsMappings) porque as rotas do
- * Spring Cloud Gateway MVC sao RouterFunction, nao @Controller - nao passam pela
- * RequestMappingHandlerMapping que addCorsMappings decora. Precisa vir antes de
- * PasetoAuthenticationFilter/ServiceKeyAuthenticationFilter: o preflight OPTIONS nao carrega
- * Authorization/X-Service-Key, entao se qualquer um dos dois rodar primeiro rejeita o preflight
- * antes do CorsFilter conseguir responder. @Order direto no @Bean NAO basta pra isso (achado
- * real, provado pelo teste de integracao falhando com 401 antes desta correcao) - o registro de
- * Filter do Spring Boot so respeita ordem via FilterRegistrationBean.setOrder, nao via @Order na
- * classe/metodo do bean Filter em si.
- */
 @Configuration
 public class CorsConfig {
 
@@ -31,8 +20,6 @@ public class CorsConfig {
 		configuration.setAllowedOrigins(allowedOrigins);
 		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 		configuration.setAllowedHeaders(List.of("*"));
-		// Sem credentials: token PASETO vai no header Authorization (localStorage no web, ver
-		// apps/web/src/app/core/auth.ts), nunca cookie - allowCredentials nao se aplica aqui.
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", configuration);

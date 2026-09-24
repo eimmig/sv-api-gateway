@@ -75,8 +75,6 @@ class ResolvedIdentityRequestWrapperTest {
 		assertThat(Collections.list(wrapper.getHeaderNames())).contains("X-User-Role");
 	}
 
-	// X-Service-Key path (telegram-integration) has no role concept - null must never surface as
-	// a present-but-empty header, since downstream services treat header absence as "not admin".
 	@Test
 	void shouldOmitRoleHeaderEntirelyWhenNull() {
 		MockHttpServletRequest request = new MockHttpServletRequest();

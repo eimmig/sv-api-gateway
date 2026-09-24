@@ -7,6 +7,7 @@ por serviço"). O "porquê" de cada mudança vive na issue e na mensagem de comm
 
 ## [Unreleased]
 
+- Remover todos os comentários restantes do código, testes e configuração (convenção de zero comentário, `docs/convencoes.md`)
 - [SV-9](https://stakevault.atlassian.net/browse/SV-9) - Alinhar as chaves de projeto ao padrão do SonarCloud
 - [SV-147](https://stakevault.atlassian.net/browse/SV-147) - Setup do projeto
 - [SV-148](https://stakevault.atlassian.net/browse/SV-148) - Endurecer pipeline de CI e bootstrap do pom.xml
