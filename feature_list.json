@@ -563,7 +563,7 @@
           ],
           "validation": "init.sh verde, Delivery/Test Suite sem achado real pendente, evidence preenchida.",
           "owner": "agente",
-          "status": "not-started",
+          "status": "in-progress",
           "jira": "SV-593"
         }
       ],
