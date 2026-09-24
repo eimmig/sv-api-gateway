@@ -1,6 +1,6 @@
 package com.stakevault.betting.gateway.filter;
 
-public class InvalidTokenException extends RuntimeException implements LocalizedFilterException {
+public class InvalidTokenException extends LocalizedRuntimeException {
 
 	public InvalidTokenException() {
 		super("missing, malformed, tampered or expired PASETO token");
