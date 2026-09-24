@@ -2,8 +2,16 @@
 
 ## Estado Atual (Current State)
 
-**Última atualização:** 2026-09-15
-**Feature ativa:** nenhuma (`feat-001..015` todas `done`, backlog atual esgotado)
+**Última atualização:** 2026-09-24
+**Feature ativa:** nenhuma — `feat-018` fechada, backlog do serviço esgotado.
+
+## `feat-018` fechada — `LocalizedRuntimeException` (epic-034 da raiz, 2026-09-24)
+
+Story SV-591, PRs #54-#56, CI+SonarCloud verdes. Classe base abstrata extraída e as 5 exceções
+localizadas migradas para estendê-la; comportamento observável inalterado, zero teste tocado.
+Interface aqui é `LocalizedFilterException` (pacote `filter`); nenhuma exceção usa `messageArgs`, então a base foi aplicada por consistência com a convenção, sem eliminar duplicação atual. Detalhe (plan review, fora de escopo, verificação) no `plan_review`/`evidence` da feature
+em `feature_list.json`. Nota: este commit de docs foi direto para `develop` (PR só de docs reprova
+o gate de `CHANGELOG.md`), mesmo precedente já aceito nos outros serviços.
 
 ## `feat-015` fechada — rotear `/api/v1/teams` pra bets-service (2026-09-15, mesmo dia)
 
