@@ -61,3 +61,6 @@ por serviço"). O "porquê" de cada mudança vive na issue e na mensagem de comm
 - [SV-570](https://stakevault.atlassian.net/browse/SV-570) - CI: gerar versao (semver + tag + Release + bump de pom.xml + corte de CHANGELOG) ao merge em main
 - [SV-571](https://stakevault.atlassian.net/browse/SV-571) - Job 'release' no ci.yml + .github/scripts/cut-changelog.py
 - [SV-572](https://stakevault.atlassian.net/browse/SV-572) - CHANGELOG e verificacao final
+- [SV-591](https://stakevault.atlassian.net/browse/SV-591) - Extrair LocalizedRuntimeException (4o harness do epic-034 da raiz)
+- [SV-592](https://stakevault.atlassian.net/browse/SV-592) - Extrair LocalizedRuntimeException e migrar as 5 excecoes
+- [SV-593](https://stakevault.atlassian.net/browse/SV-593) - CHANGELOG e verificacao final
