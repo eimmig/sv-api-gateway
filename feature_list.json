@@ -494,7 +494,7 @@
       "name": "CI: gerar versao (semver + tag + Release + bump de pom.xml + corte de CHANGELOG) ao merge em main",
       "description": "4o e ultimo harness Java do epic-033 da raiz - mesmo mecanismo ja validado e implementado em auth-service feat-020 (ver aquele feature_list.json pro plan review completo, 2 subagentes independentes, pesquisa real). Job novo 'release' no ci.yml, identico ao de auth-service (so troca o nome do repositorio). Restam apps/web (npm), telegram-integration (uv) e infra/ (sem manifest) pra fechar epic-033 inteiro.",
       "dependencies": [],
-      "status": "in-progress",
+      "status": "done",
       "plan_review": "2026-09-23, Plan Reviewer (review-suite:ln-11-plan-reviewer) rodado uma vez em auth-service feat-020 (REVISE, 2 achados corrigidos: commit: explicito no release-action, persist-credentials:false) - reaproveitado aqui sem nova rodada, mesma estrutura de repositorio/pom.xml confirmada identica aos outros 3 servicos Java.",
       "jira": "SV-570",
       "subtasks": [
@@ -507,7 +507,7 @@
         {
           "id": "feat-017.2",
           "name": "CHANGELOG e verificacao final",
-          "status": "not-started",
+          "status": "done",
           "jira": "SV-572",
           "detail": "Fecha a parte de api-gateway do epic-033 da raiz.",
           "checklist": [
@@ -521,7 +521,80 @@
           "owner": "agente"
         }
       ],
-      "evidence": ""
+      "evidence": "2 subtasks (SV-571/572, story SV-570) done, PRs #51/#52 (subtask->story) + #53 (story->develop->main, promocao real) - CI+SonarCloud verdes. Job 'release' identico ao desenhado/revisado em auth-service feat-020. Verificacao real end-to-end confirmada: push real em main (2026-09-23T23:10Z) - tag v0.1.0 criada, GitHub Release 'Latest' publicado, commit chore(release) empurrado pra main via RELEASE_TOKEN, sem loop de CI. Job 'deploy' (nao relacionado, pre-existente) falhou como esperado - KUBE_CONFIG nao alcanca o cluster a partir de runners hospedados (residual ja documentado). Fecha a parte de api-gateway do epic-033 da raiz - ultimo dos 4 servicos Java."
+    },
+    {
+      "id": "feat-018",
+      "name": "Extrair LocalizedRuntimeException (4o harness do epic-034 da raiz)",
+      "goal": "Alinhar as excecoes localizadas do gateway a classe base compartilhada ja adotada nos outros 3 servicos Java, sem mudar o ProblemDetail devolvido.",
+      "scope": "As 5 excecoes do pacote `filter` que implementam `LocalizedFilterException`.",
+      "description": "4o e ultimo harness do epic-034 da raiz (ver docs/convencoes.md 'LocalizedRuntimeException como base obrigatoria'). Auditado por leitura antes de planejar - estrutura diferente dos outros 3: a interface aqui e LocalizedFilterException (pacote filter, gateway nao tem camada domain), nao LocalizedDomainException; as 5 excecoes (InvalidTokenException/InvalidServiceKeyException/MissingTelegramUserIdException/TelegramAccountNotFoundException zero-arg, AuthServiceUnavailableException com cause) sao todas public e nenhuma sobrescreve messageArgs() - nao ha duplicacao de args a eliminar hoje. Aplicado mesmo assim por ser convencao normativa nos 4 servicos Java (escopo explicito do epic-034) - toda excecao nova com args ja nasce no formato padrao. Sem sonar.cpd.exclusions a remover.",
+      "dependencies": [],
+      "status": "done",
+      "plan_review": "Plan Reviewer (review-suite:ln-11-plan-reviewer) 2026-09-24: READY WITH CONCERNS. Challenge independente como self-review (independencia reduzida, refactor mecanico de baixo risco). Confirmado por leitura: as 5 excecoes nao sao lancadas, so instanciadas e passadas pra writeProblem (PasetoAuthenticationFilter/ServiceKeyAuthenticationFilter) que usa apenas metodos da interface via ProblemDetailMessages - status/title/detail/type preservados; nenhum teste referencia as classes diretamente (cobertas pelos testes de filtro pela borda HTTP). 3 MINOR incorporados: (1) nenhuma excecao usa messageArgs hoje - base nao elimina duplicacao atual, aplicada por consistencia com a convencao normativa (escopo do epic), aceito; (2) base implementa LocalizedFilterException (nao LocalizedDomainException), public como as 5 excecoes do pacote; (3) AuthServiceUnavailableException passa a chamar super(message, cause) - com 2 construtores varargs, a resolucao Java escolhe (String, Throwable, Object...) por ser mais especifico (messageArgs vazio, igual hoje) - mesmo caso ja compilado em auth-service/stats-service; conferir que getCause() e preservado. Vault: docs/convencoes.md afirma 'mesma interface LocalizedDomainException' nos 4 servicos - incorreto pro gateway, corrigir na ultima subtask.",
+      "jira": "SV-591",
+      "subtasks": [
+        {
+          "id": "feat-018.1",
+          "name": "Extrair LocalizedRuntimeException e migrar as 5 excecoes",
+          "detail": "Classe base public no pacote filter; as 5 excecoes passam a estende-la, mantendo so messageKey()/httpStatusCode().",
+          "checklist": [
+            "LocalizedRuntimeException (public abstract, implementa LocalizedFilterException) com os 2 construtores e campo transient Object[] args (clone em messageArgs())",
+            "4 excecoes zero-arg migram pra super(mensagem literal)",
+            "AuthServiceUnavailableException migra pra super(message, cause), getCause() preservado",
+            "Testes existentes continuam passando sem modificacao",
+            "mvn verify local verde"
+          ],
+          "validation": "As 5 classes estendem LocalizedRuntimeException, testes existentes verdes sem alteracao.",
+          "owner": "agente",
+          "status": "done",
+          "jira": "SV-592"
+        },
+        {
+          "id": "feat-018.2",
+          "name": "CHANGELOG e verificacao final",
+          "detail": "Fecha a parte de api-gateway e o epic-034 da raiz.",
+          "checklist": [
+            "Entrada em CHANGELOG.md (Unreleased)",
+            "./init.sh do servico e da raiz verdes",
+            "Delivery Reviewer/Test Suite Auditor rodados sobre o diff real desta feature (sem banco - Persistence Auditor nao se aplica)",
+            "Vault (docs/) revisado: alguma descoberta desta feature - mecanismo reaproveitavel, gotcha de lib/config, lacuna de especificacao, decisao que diverge do ja documentado - sem nota correspondente? Se sim, atualizar/criar a nota do assunto (nao docs/DECISIONS-LOG.md a menos que divirja do TCC 1) no mesmo commit",
+            "status:done + evidence escritos na branch da story, no PR desta subtask, ANTES do PR story->develop"
+          ],
+          "validation": "init.sh verde, Delivery/Test Suite sem achado real pendente, evidence preenchida.",
+          "owner": "agente",
+          "status": "done",
+          "jira": "SV-593"
+        }
+      ],
+      "evidence": {
+        "resumo": "Fechado em 2026-09-24 por feat-018.1/feat-018.2 (story SV-591). LocalizedRuntimeException (public abstract, implementa LocalizedFilterException) extraida no pacote filter; as 5 excecoes migradas. ProblemDetail devolvido inalterado. Fecha a parte de api-gateway e o ultimo harness do epic-034 da raiz.",
+        "secoes": [
+          {
+            "titulo": "O que foi feito",
+            "itens": [
+              "PR #54 (SV-592, subtask->story): base com campo transient Object[] args, 2 construtores e messageArgs() devolvendo clone; as 5 excecoes trocam 'extends RuntimeException implements LocalizedFilterException' por 'extends LocalizedRuntimeException' - diff de 1 linha por excecao.",
+              "AuthServiceUnavailableException continua chamando super(message, cause): a resolucao de sobrecarga escolhe (String, Throwable, Object...) - messageArgs vazio e getCause() preservados, igual antes."
+            ]
+          },
+          {
+            "titulo": "Como foi verificado",
+            "itens": [
+              "./init.sh (mvn verify, gate JaCoCo) verde: 59 testes, 0 falhas/erros; zero arquivo de teste tocado.",
+              "CI do PR #54 (pipeline) verde.",
+              "ServiceKeyAuthenticationFilterTest (401/401/404/503) e PasetoAuthenticationFilterTest cobrem as 5 excecoes pela borda do filtro.",
+              "Delivery Reviewer (self-conduzido - refactor mecanico): PASS, sem achado. Test Suite Auditor (self-conduzido): testes existentes provam o status/ProblemDetail na borda, KEEP em todos, nenhum teste novo necessario. Persistence Auditor nao se aplica (gateway sem banco)."
+            ]
+          },
+          {
+            "titulo": "O que divergiu do plano",
+            "itens": [
+              "Nada. Base nao elimina duplicacao atual (nenhuma excecao do gateway usa messageArgs) - aplicada por consistencia com a convencao normativa, aceito no plan review.",
+              "Vault: docs/convencoes.md (raiz) corrigido - afirmava 'mesma interface LocalizedDomainException' nos 4 servicos; no gateway a interface e LocalizedFilterException."
+            ]
+          }
+        ]
+      }
     }
   ]
 }

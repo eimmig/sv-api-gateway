@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Verification for api-gateway (Java 25 + Spring Boot 4.x + Spring Cloud Gateway).
 set -euo pipefail
 
 if ! command -v java >/dev/null 2>&1; then
