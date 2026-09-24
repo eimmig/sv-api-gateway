@@ -1,6 +1,6 @@
 package com.stakevault.betting.gateway.filter;
 
-public class AuthServiceUnavailableException extends RuntimeException implements LocalizedFilterException {
+public class AuthServiceUnavailableException extends LocalizedRuntimeException {
 
 	public AuthServiceUnavailableException(Throwable cause) {
 		super("auth-service telegram-account lookup failed", cause);

@@ -1,6 +1,6 @@
 package com.stakevault.betting.gateway.filter;
 
-public class TelegramAccountNotFoundException extends RuntimeException implements LocalizedFilterException {
+public class TelegramAccountNotFoundException extends LocalizedRuntimeException {
 
 	public TelegramAccountNotFoundException() {
 		super("no auth-service link for the provided telegramUserId");

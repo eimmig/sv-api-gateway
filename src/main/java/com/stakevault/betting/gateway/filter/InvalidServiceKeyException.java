@@ -1,6 +1,6 @@
 package com.stakevault.betting.gateway.filter;
 
-public class InvalidServiceKeyException extends RuntimeException implements LocalizedFilterException {
+public class InvalidServiceKeyException extends LocalizedRuntimeException {
 
 	public InvalidServiceKeyException() {
 		super("missing or mismatched X-Service-Key header");

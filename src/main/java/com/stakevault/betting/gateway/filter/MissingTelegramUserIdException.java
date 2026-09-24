@@ -1,6 +1,6 @@
 package com.stakevault.betting.gateway.filter;
 
-public class MissingTelegramUserIdException extends RuntimeException implements LocalizedFilterException {
+public class MissingTelegramUserIdException extends LocalizedRuntimeException {
 
 	public MissingTelegramUserIdException() {
 		super("missing X-Telegram-User-Id header");
