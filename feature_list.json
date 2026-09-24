@@ -563,11 +563,38 @@
           ],
           "validation": "init.sh verde, Delivery/Test Suite sem achado real pendente, evidence preenchida.",
           "owner": "agente",
-          "status": "in-progress",
+          "status": "done",
           "jira": "SV-593"
         }
       ],
-      "evidence": ""
+      "evidence": {
+        "resumo": "Fechado em 2026-09-24 por feat-018.1/feat-018.2 (story SV-591). LocalizedRuntimeException (public abstract, implementa LocalizedFilterException) extraida no pacote filter; as 5 excecoes migradas. ProblemDetail devolvido inalterado. Fecha a parte de api-gateway e o ultimo harness do epic-034 da raiz.",
+        "secoes": [
+          {
+            "titulo": "O que foi feito",
+            "itens": [
+              "PR #54 (SV-592, subtask->story): base com campo transient Object[] args, 2 construtores e messageArgs() devolvendo clone; as 5 excecoes trocam 'extends RuntimeException implements LocalizedFilterException' por 'extends LocalizedRuntimeException' - diff de 1 linha por excecao.",
+              "AuthServiceUnavailableException continua chamando super(message, cause): a resolucao de sobrecarga escolhe (String, Throwable, Object...) - messageArgs vazio e getCause() preservados, igual antes."
+            ]
+          },
+          {
+            "titulo": "Como foi verificado",
+            "itens": [
+              "./init.sh (mvn verify, gate JaCoCo) verde: 59 testes, 0 falhas/erros; zero arquivo de teste tocado.",
+              "CI do PR #54 (pipeline) verde.",
+              "ServiceKeyAuthenticationFilterTest (401/401/404/503) e PasetoAuthenticationFilterTest cobrem as 5 excecoes pela borda do filtro.",
+              "Delivery Reviewer (self-conduzido - refactor mecanico): PASS, sem achado. Test Suite Auditor (self-conduzido): testes existentes provam o status/ProblemDetail na borda, KEEP em todos, nenhum teste novo necessario. Persistence Auditor nao se aplica (gateway sem banco)."
+            ]
+          },
+          {
+            "titulo": "O que divergiu do plano",
+            "itens": [
+              "Nada. Base nao elimina duplicacao atual (nenhuma excecao do gateway usa messageArgs) - aplicada por consistencia com a convencao normativa, aceito no plan review.",
+              "Vault: docs/convencoes.md (raiz) corrigido - afirmava 'mesma interface LocalizedDomainException' nos 4 servicos; no gateway a interface e LocalizedFilterException."
+            ]
+          }
+        ]
+      }
     }
   ]
 }
