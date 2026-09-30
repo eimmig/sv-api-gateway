@@ -13,6 +13,8 @@ por serviço"). O "porquê" de cada mudança vive na issue e na mensagem de comm
 - [SV-591](https://stakevault.atlassian.net/browse/SV-591) - Extrair LocalizedRuntimeException (4o harness do epic-034 da raiz)
 - [SV-592](https://stakevault.atlassian.net/browse/SV-592) - Extrair LocalizedRuntimeException e migrar as 5 excecoes
 - [SV-593](https://stakevault.atlassian.net/browse/SV-593) - CHANGELOG e verificacao final
+- [SV-673](https://stakevault.atlassian.net/browse/SV-673) - Validar SonarCloud tambem em push pra main (nao so pull_request)
+- [SV-674](https://stakevault.atlassian.net/browse/SV-674) - ci.yml: push so pra main habilita os 2 steps de SonarCloud, com continue-on-error
 
 ## [0.1.0] - 2026-09-23
 
