@@ -624,6 +624,19 @@
         }
       ],
       "evidence": "Fechada em 2026-09-29. 1 subtask (SV-674, story SV-673), PR #60 (subtask->story) + #61 (story->develop). Replica em api-gateway a correcao de services/auth-service feat-022 / bets-service feat-023 / stats-service feat-026. CI+SonarCloud verdes nos 2 PRs. Fecha a parte api-gateway do epic-038 da raiz."
+    },
+    {
+      "id": "feat-020",
+      "name": "Testar /actuator/health/liveness no HealthChecksTest",
+      "goal": "Garantir que o endpoint de liveness que o Kubernetes usa continue respondendo 200.",
+      "scope": "HealthChecksTest: uma asserção de GET /actuator/health/liveness com status 200 e UP, ao lado das de /actuator/health e /readiness.",
+      "description": "Achado do Delivery Reviewer de infra feat-012 (2026-10-04): os manifests do infra passaram a usar /actuator/health/liveness no livenessProbe e no startupProbe, mas nenhum teste deste serviço cobre esse endpoint; se uma mudança de configuração do Actuator o desligar, os pods entram em CrashLoop sem nenhum teste avisar.",
+      "dependencies": [],
+      "status": "not-started",
+      "plan_review": "",
+      "jira": "",
+      "subtasks": [],
+      "evidence": ""
     }
   ]
 }
