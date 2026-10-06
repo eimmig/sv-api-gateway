@@ -10,6 +10,8 @@ por serviço"). O "porquê" de cada mudança vive na issue e na mensagem de comm
 - [SV-738](https://stakevault.atlassian.net/browse/SV-738) - Teste de GET /actuator/health/liveness
 - [SV-739](https://stakevault.atlassian.net/browse/SV-739) - CHANGELOG e verificacao final
 
+## [0.1.2] - 2026-09-30
+
 ## [0.1.1] - 2026-09-24
 
 - Remover todos os comentários restantes do código, testes e configuração (convenção de zero comentário, `docs/convencoes.md`)
