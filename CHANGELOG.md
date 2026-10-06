@@ -6,6 +6,8 @@ formato `- [chave](url) - título` — sem prosa, sem categoria. Escrita automat
 por serviço"). O "porquê" de cada mudança vive na issue e na mensagem de commit, não aqui.
 
 ## [Unreleased]
+
+## [0.1.3] - 2026-10-06
 - [SV-737](https://stakevault.atlassian.net/browse/SV-737) - Testar /actuator/health/liveness no HealthChecksTest
 - [SV-738](https://stakevault.atlassian.net/browse/SV-738) - Teste de GET /actuator/health/liveness
 - [SV-739](https://stakevault.atlassian.net/browse/SV-739) - CHANGELOG e verificacao final
