@@ -376,8 +376,9 @@ só `infra/` na ordem sugerida.
 
 Achado do Delivery Reviewer de `infra feat-012`: os manifests Kubernetes usam `/actuator/health/liveness`
 no `livenessProbe` e no `startupProbe`, mas nenhum teste cobria o endpoint. `HealthChecksTest` ganhou o
-teste de liveness (200 e `"status":"UP"`) e o teste antigo, que chamava `/actuator/health`, foi
-renomeado para `shouldRespondUpForHealth`. Só `src/test`, sem código de produção. Plan Reviewer: READY.
+os 3 endpoints (`/actuator/health`, `/liveness`, `/readiness`) cobertos por um único
+`@ParameterizedTest` — o SonarCloud `java:S5976` reprovou a primeira versão com 3 testes separados
+(regra registrada em `docs/testes.md`). Só `src/test`, sem código de produção. Plan Reviewer: READY.
 Delivery Reviewer e Test Suite Auditor: PASS, sem achado (escopo trivial, revisão direta sem
 subagentes). `./init.sh` verde. Vault revisado: `docs/observabilidade-e-configuracao.md` já documenta o
 probe de liveness, sem nota nova. Story SV-737, subtasks SV-738/739.

@@ -672,24 +672,24 @@
           {
             "titulo": "O que foi feito",
             "itens": [
-              "Novo teste shouldRespondUpForLiveness em HealthChecksTest.",
-              "Teste antigo, que chamava /actuator/health, renomeado para shouldRespondUpForHealth.",
+              "HealthChecksTest agora e um unico @ParameterizedTest (shouldRespondUp) sobre /actuator/health, /actuator/health/liveness e /actuator/health/readiness, cada um esperando 200 e status UP.",
               "Sem mudanca de codigo de producao."
             ]
           },
           {
             "titulo": "Como foi verificado",
             "itens": [
-              "mvn test -Dtest=HealthChecksTest: 3 testes, 0 falha.",
+              "mvn test -Dtest=HealthChecksTest: 3 casos, 0 falha.",
               "./init.sh do servico verde (mvn verify, gate de cobertura incluso).",
-              "PR #63 (subtask para story): CI verde.",
+              "PR #63 (subtask para story) e PR #64 (story para develop): CI e SonarCloud verdes.",
               "Delivery Reviewer e Test Suite Auditor: PASS, sem achado (escopo trivial, revisao direta)."
             ]
           },
           {
             "titulo": "O que divergiu do plano",
             "itens": [
-              "Nada. Vault revisado: docs/observabilidade-e-configuracao.md ja documenta o probe de liveness."
+              "SonarCloud java:S5976 reprovou o PR #64 com os 3 testes separados; corrigido parametrizando. Regra registrada em docs/testes.md.",
+              "Vault revisado: docs/observabilidade-e-configuracao.md ja documenta o probe de liveness."
             ]
           }
         ]
