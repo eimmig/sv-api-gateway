@@ -632,7 +632,7 @@
       "scope": "HealthChecksTest: uma asserção de GET /actuator/health/liveness com status 200 e UP, ao lado das de /actuator/health e /readiness.",
       "description": "Achado do Delivery Reviewer de infra feat-012 (2026-10-04): os manifests do infra passaram a usar /actuator/health/liveness no livenessProbe e no startupProbe, mas nenhum teste deste serviço cobre esse endpoint; se uma mudança de configuração do Actuator o desligar, os pods entram em CrashLoop sem nenhum teste avisar.",
       "dependencies": [],
-      "status": "in-progress",
+      "status": "done",
       "plan_review": "2026-10-06, Plan Reviewer: READY, sem BLOCKER/MAJOR. Verificado: application.yml ja habilita management.endpoint.health.probes (liveness/readiness) e infra/k8s/api-gateway.yaml usa /actuator/health/liveness no livenessProbe e startupProbe; HealthChecksTest so cobre /actuator/health (com nome enganoso shouldRespondUpForLiveness) e /readiness. MINOR absorvido: renomear o teste existente para shouldRespondUpForHealth junto com a adicao do teste de liveness. Escopo so src/test, sem codigo de producao, sem contrato novo.",
       "jira": "SV-737",
       "subtasks": [
@@ -666,7 +666,34 @@
           "owner": "agente"
         }
       ],
-      "evidence": ""
+      "evidence": {
+        "resumo": "Fechada em 2026-10-06. HealthChecksTest cobre /actuator/health/liveness (200 e status UP), o endpoint usado pelos probes do Kubernetes.",
+        "secoes": [
+          {
+            "titulo": "O que foi feito",
+            "itens": [
+              "Novo teste shouldRespondUpForLiveness em HealthChecksTest.",
+              "Teste antigo, que chamava /actuator/health, renomeado para shouldRespondUpForHealth.",
+              "Sem mudanca de codigo de producao."
+            ]
+          },
+          {
+            "titulo": "Como foi verificado",
+            "itens": [
+              "mvn test -Dtest=HealthChecksTest: 3 testes, 0 falha.",
+              "./init.sh do servico verde (mvn verify, gate de cobertura incluso).",
+              "PR #63 (subtask para story): CI verde.",
+              "Delivery Reviewer e Test Suite Auditor: PASS, sem achado (escopo trivial, revisao direta)."
+            ]
+          },
+          {
+            "titulo": "O que divergiu do plano",
+            "itens": [
+              "Nada. Vault revisado: docs/observabilidade-e-configuracao.md ja documenta o probe de liveness."
+            ]
+          }
+        ]
+      }
     }
   ]
 }
