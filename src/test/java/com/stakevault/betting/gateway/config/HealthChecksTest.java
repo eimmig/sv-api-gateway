@@ -27,8 +27,16 @@ class HealthChecksTest {
 	}
 
 	@Test
-	void shouldRespondUpForLiveness() throws Exception {
+	void shouldRespondUpForHealth() throws Exception {
 		HttpResponse<String> response = get("/actuator/health");
+
+		assertThat(response.statusCode()).isEqualTo(200);
+		assertThat(response.body()).contains("\"status\":\"UP\"");
+	}
+
+	@Test
+	void shouldRespondUpForLiveness() throws Exception {
+		HttpResponse<String> response = get("/actuator/health/liveness");
 
 		assertThat(response.statusCode()).isEqualTo(200);
 		assertThat(response.body()).contains("\"status\":\"UP\"");

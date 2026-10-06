@@ -639,7 +639,7 @@
         {
           "id": "feat-020.1",
           "name": "Teste de GET /actuator/health/liveness",
-          "status": "in-progress",
+          "status": "done",
           "jira": "SV-738",
           "detail": "Os manifests do infra usam esse path no livenessProbe e no startupProbe; sem teste, uma mudanca de config do Actuator derruba os pods em CrashLoop sem aviso.",
           "checklist": [
