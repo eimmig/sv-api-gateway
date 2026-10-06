@@ -371,3 +371,13 @@ Mesmo residual de ambiente (processos `java.exe` órfãos travando o `repackage`
 em `services/auth-service/progress.md` - `mvn test` local verde, `mvn verify` completo confirmado
 pelo CI. Fecha a parte de `api-gateway` do `epic-032` da raiz - último dos 4 serviços Java, resta
 só `infra/` na ordem sugerida.
+
+## `feat-020` fechada — testar /actuator/health/liveness (2026-10-06)
+
+Achado do Delivery Reviewer de `infra feat-012`: os manifests Kubernetes usam `/actuator/health/liveness`
+no `livenessProbe` e no `startupProbe`, mas nenhum teste cobria o endpoint. `HealthChecksTest` ganhou o
+teste de liveness (200 e `"status":"UP"`) e o teste antigo, que chamava `/actuator/health`, foi
+renomeado para `shouldRespondUpForHealth`. Só `src/test`, sem código de produção. Plan Reviewer: READY.
+Delivery Reviewer e Test Suite Auditor: PASS, sem achado (escopo trivial, revisão direta sem
+subagentes). `./init.sh` verde. Vault revisado: `docs/observabilidade-e-configuracao.md` já documenta o
+probe de liveness, sem nota nova. Story SV-737, subtasks SV-738/739.
