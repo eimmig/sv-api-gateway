@@ -7,7 +7,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
@@ -26,25 +27,10 @@ class HealthChecksTest {
 		return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 	}
 
-	@Test
-	void shouldRespondUpForHealth() throws Exception {
-		HttpResponse<String> response = get("/actuator/health");
-
-		assertThat(response.statusCode()).isEqualTo(200);
-		assertThat(response.body()).contains("\"status\":\"UP\"");
-	}
-
-	@Test
-	void shouldRespondUpForLiveness() throws Exception {
-		HttpResponse<String> response = get("/actuator/health/liveness");
-
-		assertThat(response.statusCode()).isEqualTo(200);
-		assertThat(response.body()).contains("\"status\":\"UP\"");
-	}
-
-	@Test
-	void shouldRespondUpForReadiness() throws Exception {
-		HttpResponse<String> response = get("/actuator/health/readiness");
+	@ParameterizedTest
+	@ValueSource(strings = { "/actuator/health", "/actuator/health/liveness", "/actuator/health/readiness" })
+	void shouldRespondUp(String path) throws Exception {
+		HttpResponse<String> response = get(path);
 
 		assertThat(response.statusCode()).isEqualTo(200);
 		assertThat(response.body()).contains("\"status\":\"UP\"");
