@@ -2,8 +2,49 @@
 
 ## Estado Atual (Current State)
 
-**Última atualização:** 2026-09-24
-**Feature ativa:** nenhuma — `feat-018` fechada, backlog do serviço esgotado.
+**Última atualização:** 2026-11-01
+**Feature ativa:** nenhuma — `feat-021` fechada, backlog do serviço esgotado.
+
+## `feat-021` fechada — `PasetoClaims.isComplete()`/`isExpired()` (epic-050 da raiz, 2026-11-01)
+
+Story SV-777 (subtasks SV-778/SV-779), PRs #66-#68, CI+SonarCloud verdes. Refatoração pura pedida
+para a Listagem do filtro PASETO no TCC 2 (seção 4.3.1): o `if` de 3 linhas que validava as claims
+virou dois métodos do próprio record. Mesmas condições, mesmo 401 RFC 7807, mesmos logs;
+`PasetoAuthenticationFilterTest` inalterado, `PasetoClaimsTest` novo (13 casos parametrizados).
+Delivery Reviewer e Test Suite Auditor: PASS. Detalhe no `plan_review`/`evidence` da feature.
+
+Texto final de `doFilterInternal` em `develop` (fonte para a Listagem do TCC, `tcc-014`):
+
+```java
+	@Override
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+			throws ServletException, IOException {
+		String authorization = request.getHeader("Authorization");
+		if (authorization == null || !authorization.startsWith(BEARER_PREFIX)) {
+			writeUnauthorized(request, response);
+			return;
+		}
+
+		PasetoClaims claims;
+		try {
+			String token = authorization.substring(BEARER_PREFIX.length());
+			String claimsJson = Paseto.decrypt(localKey, token, "");
+			claims = objectMapper.readValue(claimsJson, PasetoClaims.class);
+		} catch (RuntimeException e) {
+			log.warn("Rejecting PASETO token: {}", e.getClass().getSimpleName());
+			writeUnauthorized(request, response);
+			return;
+		}
+
+		if (!claims.isComplete() || claims.isExpired(Instant.now().getEpochSecond())) {
+			writeUnauthorized(request, response);
+			return;
+		}
+
+		chain.doFilter(new ResolvedIdentityRequestWrapper(request, claims.userId(), claims.tenantId(), claims.role()),
+				response);
+	}
+```
 
 ## `feat-018` fechada — `LocalizedRuntimeException` (epic-034 da raiz, 2026-09-24)
 
