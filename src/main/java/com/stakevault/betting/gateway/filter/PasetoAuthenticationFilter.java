@@ -89,9 +89,7 @@ public class PasetoAuthenticationFilter extends OncePerRequestFilter {
 			return;
 		}
 
-		if (claims.userId() == null || claims.userId().isBlank() || claims.tenantId() == null
-				|| claims.tenantId().isBlank() || claims.role() == null || claims.role().isBlank()
-				|| claims.exp() <= Instant.now().getEpochSecond()) {
+		if (!claims.isComplete() || claims.isExpired(Instant.now().getEpochSecond())) {
 			writeUnauthorized(request, response);
 			return;
 		}
