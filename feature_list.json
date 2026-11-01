@@ -694,6 +694,51 @@
           }
         ]
       }
+    },
+    {
+      "id": "feat-021",
+      "name": "PasetoClaims com isComplete() e isExpired(): filtro PASETO mais legivel",
+      "goal": "Trocar o if de quatro linhas que valida as claims em PasetoAuthenticationFilter por dois metodos do proprio PasetoClaims, sem mudar comportamento.",
+      "scope": "PasetoClaims ganha isComplete() (userId, tenantId e role nao nulos e nao em branco) e isExpired(long nowEpochSeconds) (exp <= agora). PasetoAuthenticationFilter.doFilterInternal passa a usar if (!claims.isComplete() || claims.isExpired(Instant.now().getEpochSecond())). Testes unitarios dos dois metodos; testes existentes do filtro continuam verdes sem alteracao de expectativa. Nota do vault (docs/services/api-gateway.md) atualizada se descrever a validacao.",
+      "description": "Pedido do usuario na sessao do TCC 2 de 2026-11-01, parte do epic-050 da raiz. A Listagem code:paseto do TCC 2 (texto/capitulos/cap-conclusoes.tex, secao 4.3.1) reproduz doFilterInternal, e o if de validacao das claims (userId/tenantId/role nulos ou em branco, ou exp <= agora) ficou pouco legivel no texto. O usuario preferiu refatorar o codigo real a recortar a listagem, para o TCC continuar mostrando o codigo do repositorio. Refatoracao pura: mesmas condicoes, mesmo 401 RFC 7807, mesmos logs. Definicao de pronto: Definicao de pronto deste CLAUDE.md completa (init.sh verde, Delivery Reviewer e Test Suite Auditor, CHANGELOG, evidence), merge em develop com CI e SonarCloud verdes, e o trecho final de doFilterInternal registrado na evidence para a Listagem do TCC ser atualizada (tcc-014 em D:/UTFPR/TCC/feature_list.json).",
+      "dependencies": [],
+      "status": "in-progress",
+      "plan_review": "2026-11-01, Plan Reviewer: READY WITH CONCERNS, sem BLOCKER/MAJOR (desafio independente feito como autorrevisao, independencia reduzida). Verificado: PasetoClaims so e consumido por PasetoAuthenticationFilter (objectMapper.readValue); o ramo de claims invalidas nao loga hoje, so o catch loga; docs/services/api-gateway.md descreve a validacao em alto nivel (ausente/invalido/expirado -> 401) e continua correto. MINOR 1: o Jackson ve isComplete() como propriedade so de leitura 'complete'; sem efeito (record desserializa pelo construtor canonico, o token nao traz essa chave, o gateway nunca serializa PasetoClaims), validado pelos testes existentes do filtro e pelo GatewayRoutingIntegrationTest continuando verdes sem alteracao. MINOR 2: subtasks de codigo fundidas numa so (metodos, filtro e testes). MINOR 3: testes parametrizados (@MethodSource para null/vazio/em branco nas 3 claims, @CsvSource para isExpired incluindo exp == now) para nao cair no java:S5976.",
+      "jira": "SV-777",
+      "subtasks": [
+        {
+          "id": "feat-021.1",
+          "name": "isComplete() e isExpired() no PasetoClaims e uso no filtro",
+          "status": "in-progress",
+          "jira": "SV-778",
+          "detail": "O if de validacao das claims em doFilterInternal aparece na Listagem do TCC 2 e precisa ser legivel; a regra passa para o proprio record, sem mudar comportamento.",
+          "checklist": [
+            "PasetoClaims.isComplete(): userId, tenantId e role nao nulos e nao em branco.",
+            "PasetoClaims.isExpired(long nowEpochSeconds): exp <= nowEpochSeconds.",
+            "doFilterInternal usa if (!claims.isComplete() || claims.isExpired(Instant.now().getEpochSecond())).",
+            "PasetoClaimsTest parametrizado (null, vazio e em branco nas 3 claims; exp antes, igual e depois de agora).",
+            "PasetoAuthenticationFilterTest sem alteracao. Sem comentario no codigo."
+          ],
+          "validation": "mvn -B test verde, com PasetoAuthenticationFilterTest e GatewayRoutingIntegrationTest inalterados.",
+          "owner": "agente"
+        },
+        {
+          "id": "feat-021.2",
+          "name": "CHANGELOG e verificacao final",
+          "status": "not-started",
+          "jira": "SV-779",
+          "detail": "Fechamento da feature: changelog, init.sh e skills de revisao.",
+          "checklist": [
+            "CHANGELOG.md com linhas em [Unreleased].",
+            "./init.sh do servico passa.",
+            "Delivery Reviewer e Test Suite Auditor rodados.",
+            "Vault (docs/) revisado: alguma descoberta desta feature - mecanismo reaproveitavel, gotcha de lib/config, lacuna de especificacao, decisao que diverge do ja documentado - sem nota correspondente? Se sim, atualizar/criar a nota do assunto (nao docs/DECISIONS-LOG.md a menos que divirja do TCC 1) no mesmo commit."
+          ],
+          "validation": "init.sh verde e evidence preenchida.",
+          "owner": "agente"
+        }
+      ],
+      "evidence": ""
     }
   ]
 }
