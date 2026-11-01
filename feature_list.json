@@ -702,7 +702,7 @@
       "scope": "PasetoClaims ganha isComplete() (userId, tenantId e role nao nulos e nao em branco) e isExpired(long nowEpochSeconds) (exp <= agora). PasetoAuthenticationFilter.doFilterInternal passa a usar if (!claims.isComplete() || claims.isExpired(Instant.now().getEpochSecond())). Testes unitarios dos dois metodos; testes existentes do filtro continuam verdes sem alteracao de expectativa. Nota do vault (docs/services/api-gateway.md) atualizada se descrever a validacao.",
       "description": "Pedido do usuario na sessao do TCC 2 de 2026-11-01, parte do epic-050 da raiz. A Listagem code:paseto do TCC 2 (texto/capitulos/cap-conclusoes.tex, secao 4.3.1) reproduz doFilterInternal, e o if de validacao das claims (userId/tenantId/role nulos ou em branco, ou exp <= agora) ficou pouco legivel no texto. O usuario preferiu refatorar o codigo real a recortar a listagem, para o TCC continuar mostrando o codigo do repositorio. Refatoracao pura: mesmas condicoes, mesmo 401 RFC 7807, mesmos logs. Definicao de pronto: Definicao de pronto deste CLAUDE.md completa (init.sh verde, Delivery Reviewer e Test Suite Auditor, CHANGELOG, evidence), merge em develop com CI e SonarCloud verdes, e o trecho final de doFilterInternal registrado na evidence para a Listagem do TCC ser atualizada (tcc-014 em D:/UTFPR/TCC/feature_list.json).",
       "dependencies": [],
-      "status": "in-progress",
+      "status": "done",
       "plan_review": "2026-11-01, Plan Reviewer: READY WITH CONCERNS, sem BLOCKER/MAJOR (desafio independente feito como autorrevisao, independencia reduzida). Verificado: PasetoClaims so e consumido por PasetoAuthenticationFilter (objectMapper.readValue); o ramo de claims invalidas nao loga hoje, so o catch loga; docs/services/api-gateway.md descreve a validacao em alto nivel (ausente/invalido/expirado -> 401) e continua correto. MINOR 1: o Jackson ve isComplete() como propriedade so de leitura 'complete'; sem efeito (record desserializa pelo construtor canonico, o token nao traz essa chave, o gateway nunca serializa PasetoClaims), validado pelos testes existentes do filtro e pelo GatewayRoutingIntegrationTest continuando verdes sem alteracao. MINOR 2: subtasks de codigo fundidas numa so (metodos, filtro e testes). MINOR 3: testes parametrizados (@MethodSource para null/vazio/em branco nas 3 claims, @CsvSource para isExpired incluindo exp == now) para nao cair no java:S5976.",
       "jira": "SV-777",
       "subtasks": [
@@ -738,7 +738,37 @@
           "owner": "agente"
         }
       ],
-      "evidence": ""
+      "evidence": {
+        "resumo": "Fechada em 2026-11-01. PasetoClaims ganha isComplete() e isExpired(long); PasetoAuthenticationFilter.doFilterInternal usa os dois no lugar do if inline de 3 linhas. Refatoracao pura, mesmo 401 RFC 7807 e mesmos logs.",
+        "secoes": [
+          {
+            "titulo": "O que foi feito",
+            "itens": [
+              "PasetoClaims.isComplete(): hasText(userId) && hasText(tenantId) && hasText(role), com hasText = nao nulo e nao em branco. PasetoClaims.isExpired(long nowEpochSeconds): exp <= nowEpochSeconds.",
+              "Condicao nova em doFilterInternal: if (!claims.isComplete() || claims.isExpired(Instant.now().getEpochSecond())) { writeUnauthorized(request, response); return; }",
+              "PasetoClaimsTest (13 casos): claims completas; @MethodSource com null, vazio e em branco em cada uma das 3 claims; @CsvSource para exp antes, igual e depois de agora. PasetoAuthenticationFilterTest sem alteracao.",
+              "Trecho final de doFilterInternal (para a Listagem do TCC, tcc-014) registrado em progress.md do servico."
+            ]
+          },
+          {
+            "titulo": "Como foi verificado",
+            "itens": [
+              "./init.sh do servico verde: mvn verify, 73 testes, 0 falha, cobertura 99,3% das instrucoes, PasetoClaims 12/12 branches.",
+              "PR #66 (SV-778) e #67 (SV-779) para a story: CI verde. PR #68 (story para develop): pipeline completa verde, SonarCloud com quality gate e zero issues.",
+              "Delivery Reviewer: PASS, sem achado (equivalencia logica provada; testes do filtro e de integracao inalterados e verdes). Test Suite Auditor: PASS, sem achado.",
+              "./init.sh da raiz: exit 0; api-gateway, infra e web OK. auth, bets, stats e telegram falharam por Docker Desktop fechado (Testcontainers), fora do escopo desta feature."
+            ]
+          },
+          {
+            "titulo": "O que divergiu do plano",
+            "itens": [
+              "Plan Reviewer: READY WITH CONCERNS; os 3 MINOR foram absorvidos (subtasks de codigo fundidas, testes parametrizados, propriedade derivada do Jackson validada pelos testes existentes).",
+              "/code-review da subtask rodou no diretorio errado (texto do TCC); o diff foi revisado manualmente e depois pelo Delivery Reviewer.",
+              "Vault revisado: docs/services/api-gateway.md descreve a validacao em alto nivel (ausente/invalido/expirado -> 401) e continua correto; nenhuma nota alterada."
+            ]
+          }
+        ]
+      }
     }
   ]
 }
