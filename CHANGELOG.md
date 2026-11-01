@@ -6,6 +6,8 @@ formato `- [chave](url) - título` — sem prosa, sem categoria. Escrita automat
 por serviço"). O "porquê" de cada mudança vive na issue e na mensagem de commit, não aqui.
 
 ## [Unreleased]
+
+## [0.1.4] - 2026-11-01
 - [SV-777](https://stakevault.atlassian.net/browse/SV-777) - PasetoClaims com isComplete() e isExpired(): filtro PASETO mais legivel
 - [SV-778](https://stakevault.atlassian.net/browse/SV-778) - isComplete() e isExpired() no PasetoClaims e uso no filtro
 - [SV-779](https://stakevault.atlassian.net/browse/SV-779) - CHANGELOG e verificacao final
