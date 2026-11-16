@@ -7,6 +7,8 @@ por serviço"). O "porquê" de cada mudança vive na issue e na mensagem de comm
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-16
+
 ## [0.1.4] - 2026-11-01
 - [SV-777](https://stakevault.atlassian.net/browse/SV-777) - PasetoClaims com isComplete() e isExpired(): filtro PASETO mais legivel
 - [SV-778](https://stakevault.atlassian.net/browse/SV-778) - isComplete() e isExpired() no PasetoClaims e uso no filtro
