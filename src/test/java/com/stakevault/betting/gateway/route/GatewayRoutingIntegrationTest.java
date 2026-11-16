@@ -233,6 +233,21 @@ class GatewayRoutingIntegrationTest {
 	}
 
 	@Test
+	void shouldRouteOrganizationDeletionToAuthService() throws Exception {
+		String userId = UUID.randomUUID().toString();
+		HttpRequest request = HttpRequest
+				.newBuilder(URI.create("http://localhost:" + port + "/api/v1/organization"))
+				.header("Authorization", "Bearer " + validToken(userId, "acme"))
+				.DELETE()
+				.build();
+
+		HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+		assertThat(response.statusCode()).isEqualTo(200);
+		assertThat(lastPath.get()).isEqualTo("/api/v1/organization");
+	}
+
+	@Test
 	void shouldGenerateAndForwardCorrelationIdWhenClientDoesNotSendOne() throws Exception {
 		HttpRequest request = HttpRequest.newBuilder(URI.create("http://localhost:" + port + "/api/v1/auth/login"))
 				.POST(HttpRequest.BodyPublishers.noBody())
