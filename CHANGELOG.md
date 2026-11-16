@@ -9,6 +9,8 @@ por serviço"). O "porquê" de cada mudança vive na issue e na mensagem de comm
 - [SV-777](https://stakevault.atlassian.net/browse/SV-777) - PasetoClaims com isComplete() e isExpired(): filtro PASETO mais legivel
 - [SV-778](https://stakevault.atlassian.net/browse/SV-778) - isComplete() e isExpired() no PasetoClaims e uso no filtro
 - [SV-779](https://stakevault.atlassian.net/browse/SV-779) - CHANGELOG e verificacao final
+- [SV-870](https://stakevault.atlassian.net/browse/SV-870) - Rota /api/v1/organization para o auth-service
+- [SV-871](https://stakevault.atlassian.net/browse/SV-871) - Rota e teste
 
 ## [0.1.3] - 2026-10-06
 - [SV-737](https://stakevault.atlassian.net/browse/SV-737) - Testar /actuator/health/liveness no HealthChecksTest
