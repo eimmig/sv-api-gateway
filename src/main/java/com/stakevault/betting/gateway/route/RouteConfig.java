@@ -17,7 +17,8 @@ public class RouteConfig {
 	@Bean
 	public RouterFunction<ServerResponse> authServiceRoute(@Value("${gateway.auth-service-url}") String authServiceUrl) {
 		return route("auth-service")
-				.route(path("/api/v1/users/**").or(path("/api/v1/auth/**")).or(path("/api/v1/telegram-links/**")), http())
+				.route(path("/api/v1/users/**").or(path("/api/v1/auth/**")).or(path("/api/v1/telegram-links/**"))
+						.or(path("/api/v1/organization")), http())
 				.before(uri(authServiceUrl))
 				.build();
 	}
